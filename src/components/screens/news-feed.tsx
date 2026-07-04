@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -25,11 +25,15 @@ import {
   Rss,
   Brain,
   AlertTriangle,
+  RefreshCw,
+  Radio,
 } from 'lucide-react'
-import { getMarketNews, getCompanyNews, summarizeArticles, type NewsItem } from '@/services/news-service'
+import { getMarketNews, getCompanyNews, getNewsDataSource, summarizeArticles, type NewsItem } from '@/services/news-service'
 import { cn } from '@/lib/utils'
 
 const categories = ['All', 'General', 'Technology', 'Finance', 'Healthcare', 'Consumer', 'Energy']
+const REFRESH_INTERVAL_MS = 60_000 // Auto-refresh every 60 seconds
+const NEWS_SOURCES = ['AAPL', 'NVDA', 'MSFT', 'GOOGL', 'AMZN', 'TSLA']
 
 type NewsItemWithSummary = NewsItem & { aiSummary?: string }
 
@@ -41,11 +45,12 @@ function SentimentIcon({ sentiment }: { sentiment: NewsItem['sentiment'] }) {
   }
 }
 
-function NewsCard({ item, onSummarize, isSummarizing, summarizedId }: {
+function NewsCard({ item, onSummarize, isSummarizing, summarizedId, isNew }: {
   item: NewsItemWithSummary
   onSummarize: (id: string) => void
   isSummarizing: boolean
   summarizedId: string | null
+  isNew?: boolean
 }) {
   const [copied, setCopied] = useState(false)
   const isExpanded = summarizedId === item.id
@@ -63,11 +68,19 @@ function NewsCard({ item, onSummarize, isSummarizing, summarizedId }: {
   }
 
   return (
-    <Card className="bg-card border-border hover:border-primary/30 transition-colors group">
+    <Card className={cn(
+      'bg-card border-border hover:border-primary/30 transition-all duration-500 group',
+      isNew && 'animate-in fade-in slide-in-from-top-4 border-primary/30'
+    )}>
       <CardContent className="p-4 sm:p-5 space-y-3">
         {/* Header */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-2 flex-wrap">
+            {isNew && (
+              <Badge className="bg-primary/20 text-primary border-primary/30 text-[10px] px-1.5 py-0 animate-pulse">
+                NEW
+              </Badge>
+            )}
             <Badge variant="outline" className={cn('text-[10px] px-1.5 py-0 border', sentimentColor)}>
               <SentimentIcon sentiment={item.sentiment} />
               <span className="ml-1 capitalize">{item.sentiment}</span>
@@ -86,7 +99,14 @@ function NewsCard({ item, onSummarize, isSummarizing, summarizedId }: {
             <h3 className="text-sm font-semibold leading-snug group-hover:text-primary transition-colors">
               {item.title}
             </h3>
-            <p className="text-[11px] text-muted-foreground mt-1">Source: {item.source}</p>
+            <div className="flex items-center gap-2 mt-1">
+              <p className="text-[11px] text-muted-foreground">Source: {item.source}</p>
+              {item.url && item.url !== '#' && (
+                <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-[11px] text-primary hover:underline inline-flex items-center gap-0.5">
+                  Read more <ExternalLink className="w-2.5 h-2.5" />
+                </a>
+              )}
+            </div>
           </div>
           {item.image && (
             <a href={item.url} target="_blank" rel="noopener noreferrer" className="shrink-0">
@@ -131,7 +151,7 @@ function NewsCard({ item, onSummarize, isSummarizing, summarizedId }: {
                 {copied ? <CheckCircle2 className="w-3.5 h-3.5 text-gain" /> : <Copy className="w-3.5 h-3.5" />}
               </Button>
             </div>
-            <p className="text-sm text-foreground/90 leading-relaxed">{item.aiSummary}</p>
+            <div className="text-sm text-foreground/90 leading-relaxed whitespace-pre-line">{item.aiSummary}</div>
           </div>
         )}
 
@@ -162,6 +182,36 @@ function NewsCard({ item, onSummarize, isSummarizing, summarizedId }: {
   )
 }
 
+function LiveIndicator({ lastUpdated, isRefreshing, source }: { lastUpdated: Date | null; isRefreshing: boolean; source: 'live' | 'fallback' }) {
+  return (
+    <div className="flex items-center gap-3">
+      {/* Live badge with pulsing dot */}
+      {source === 'live' ? (
+        <Badge className="bg-gain/15 text-gain border-gain/30 text-xs px-3 py-1 gap-1.5">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gain opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-gain" />
+          </span>
+          LIVE
+        </Badge>
+      ) : (
+        <Badge className="bg-loss/15 text-loss border-loss/30 text-xs px-3 py-1 gap-1.5">
+          <AlertTriangle className="w-3 h-3" />
+          OFFLINE
+        </Badge>
+      )}
+
+      {/* Last updated timestamp */}
+      {lastUpdated && (
+        <span className="text-[11px] text-muted-foreground hidden sm:inline-flex items-center gap-1">
+          <Clock className="w-3 h-3" />
+          Updated {lastUpdated.toLocaleTimeString()}
+        </span>
+      )}
+    </div>
+  )
+}
+
 export function NewsFeedScreen() {
   const [searchQuery, setSearchQuery] = useState('')
   const [activeCategory, setActiveCategory] = useState('All')
@@ -171,30 +221,84 @@ export function NewsFeedScreen() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [aiSummaries, setAiSummaries] = useState<Record<string, string>>({})
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
+  const [newArticleIds, setNewArticleIds] = useState<Set<string>>(new Set())
+  const [articleCount, setArticleCount] = useState(0)
+  const [dataSource, setDataSource] = useState<'live' | 'fallback'>('live')
+  const prevCountRef = useRef(0)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  useEffect(() => {
-    async function loadNews() {
-      try {
-        setLoading(true)
-        setError(null)
-        const marketNews = await getMarketNews('general')
-        const companyNews = await getCompanyNews('AAPL')
-        // Merge and deduplicate by id
-        const merged = [...marketNews, ...companyNews]
-        const seen = new Set<string>()
-        const unique = merged.filter(n => {
-          if (seen.has(n.id)) return false
-          seen.add(n.id)
-          return true
-        })
-        setAllNews(unique)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load news')
-      } finally {
-        setLoading(false)
+  const loadNews = useCallback(async (showRefresh = false) => {
+    try {
+      if (showRefresh) setIsRefreshing(true)
+      else if (articleCount === 0) setLoading(true)
+      setError(null)
+
+      // Fetch market news + company news from multiple tickers for broader coverage
+      const [marketNews, ...companyResults] = await Promise.all([
+        getMarketNews('general'),
+        ...NEWS_SOURCES.slice(0, 3).map((s) => getCompanyNews(s)),
+      ])
+
+      const companyNews = companyResults.flat()
+      // Merge and deduplicate by id
+      const merged = [...marketNews, ...companyNews]
+      const seen = new Set<string>()
+      const unique = merged.filter(n => {
+        if (seen.has(n.id)) return false
+        seen.add(n.id)
+        return true
+      })
+
+      // Sort by datetime (newest first) — use the id as a proxy for recency
+      unique.sort((a, b) => {
+        // Finnhub IDs are incrementing integers, higher = newer
+        const idA = parseInt(a.id, 10) || 0
+        const idB = parseInt(b.id, 10) || 0
+        return idB - idA
+      })
+
+      // Detect new articles
+      if (prevCountRef.current > 0) {
+        const existingIds = new Set(allNews.map(n => n.id))
+        const fresh = unique.filter(n => !existingIds.has(n.id))
+        if (fresh.length > 0) {
+          setNewArticleIds(new Set(fresh.map(n => n.id)))
+          // Clear the "NEW" badges after 10 seconds
+          setTimeout(() => setNewArticleIds(new Set()), 10_000)
+        }
       }
+
+      setAllNews(unique)
+      setArticleCount(unique.length)
+      prevCountRef.current = unique.length
+      setLastUpdated(new Date())
+      setDataSource(getNewsDataSource())
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load news')
+    } finally {
+      setLoading(false)
+      setIsRefreshing(false)
     }
+  }, [allNews, articleCount])
+
+  // Initial load
+  useEffect(() => {
     loadNews()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Auto-refresh every 60 seconds
+  useEffect(() => {
+    intervalRef.current = setInterval(() => {
+      loadNews(true)
+    }, REFRESH_INTERVAL_MS)
+
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const filteredNews = useMemo(() => {
@@ -219,7 +323,6 @@ export function NewsFeedScreen() {
         source: item.source,
         category: item.category,
       }])
-      // Store the AI analysis on the item
       setAiSummaries(prev => ({ ...prev, [newsId]: result.analysis }))
       setSummarizedId(newsId)
     } catch (err) {
@@ -228,6 +331,10 @@ export function NewsFeedScreen() {
     } finally {
       setIsSummarizing(false)
     }
+  }
+
+  const handleManualRefresh = () => {
+    loadNews(true)
   }
 
   // Loading skeleton state
@@ -270,7 +377,7 @@ export function NewsFeedScreen() {
           <CardContent className="p-8 text-center space-y-3">
             <AlertTriangle className="w-8 h-8 text-loss mx-auto" />
             <p className="text-sm text-muted-foreground">{error}</p>
-            <Button onClick={() => window.location.reload()} variant="outline" className="border-primary/30 text-primary">Retry</Button>
+            <Button onClick={handleManualRefresh} variant="outline" className="border-primary/30 text-primary">Retry</Button>
           </CardContent>
         </Card>
       </div>
@@ -292,10 +399,7 @@ export function NewsFeedScreen() {
               AI-powered market news analysis and summarization
             </p>
           </div>
-          <Badge className="bg-primary/15 text-primary border-primary/20 self-start text-xs px-3 py-1">
-            <Sparkles className="w-3 h-3 mr-1" />
-            AI Enhanced
-          </Badge>
+          <LiveIndicator lastUpdated={lastUpdated} isRefreshing={isRefreshing} source={dataSource} />
         </div>
 
         {/* Filters */}
@@ -352,13 +456,22 @@ export function NewsFeedScreen() {
             News & Summarizer
           </h1>
           <p className="text-muted-foreground mt-1">
-            AI-powered market news analysis and summarization
+            AI-powered live market news analysis and summarization
           </p>
         </div>
-        <Badge className="bg-primary/15 text-primary border-primary/20 self-start text-xs px-3 py-1">
-          <Sparkles className="w-3 h-3 mr-1" />
-          AI Enhanced
-        </Badge>
+        <div className="flex items-center gap-3">
+          <LiveIndicator lastUpdated={lastUpdated} isRefreshing={isRefreshing} source={dataSource} />
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 border-primary/30 text-primary hover:bg-primary/10 hover:text-primary"
+            onClick={handleManualRefresh}
+            disabled={isRefreshing}
+          >
+            <RefreshCw className={cn('w-3.5 h-3.5 mr-1.5', isRefreshing && 'animate-spin')} />
+            Refresh
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -391,6 +504,10 @@ export function NewsFeedScreen() {
                 {cat}
               </Button>
             ))}
+            <div className="ml-auto flex items-center gap-2 text-[11px] text-muted-foreground">
+              <Radio className="w-3 h-3 text-gain" />
+              <span>{filteredNews.length} article{filteredNews.length !== 1 ? 's' : ''} &middot; Auto-refresh: {REFRESH_INTERVAL_MS / 1000}s</span>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -404,16 +521,35 @@ export function NewsFeedScreen() {
             onSummarize={handleSummarize}
             isSummarizing={isSummarizing}
             summarizedId={summarizedId}
+            isNew={newArticleIds.has(item.id)}
           />
         ))}
       </div>
 
-      {/* AI Processing Stats */}
+      {/* Live Feed Footer */}
       <Card className="bg-card border-border">
         <CardContent className="p-4">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Brain className="w-4 h-4 text-primary" />
-            <span>AI Engine: GPT-4 Turbo | Avg. analysis time: 1.2s | Sentiment model: v3.2</span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Brain className="w-4 h-4 text-primary" />
+              <span>AI Engine: GPT-4 Turbo | Sentiment model: v3.2</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs">
+              {dataSource === 'live' ? (
+                <>
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gain opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-gain" />
+                  </span>
+                  <span className="text-gain">Live via Finnhub API</span>
+                </>
+              ) : (
+                <>
+                  <AlertTriangle className="w-3 h-3 text-loss" />
+                  <span className="text-loss">Showing cached data — API key may be invalid</span>
+                </>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>

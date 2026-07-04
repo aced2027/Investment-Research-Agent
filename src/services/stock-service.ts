@@ -163,7 +163,9 @@ export async function getRecommendations(symbol: string): Promise<Recommendation
     logger.info('stock-service', `Fetching recommendations for ${symbol}`)
     const res = await fetch(`/api/recommendation?symbol=${encodeURIComponent(symbol)}`)
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    const data = await res.json()
+    const body = await res.json()
+    // API route returns { recommendations: [...] }
+    const data = body.recommendations ?? body
     if (!Array.isArray(data) || data.length === 0) throw new Error('No recommendation data')
     return data
   } catch (err) {
@@ -183,7 +185,9 @@ export async function getEarnings(from?: string, to?: string): Promise<EarningsI
     if (to) params.set('to', to)
     const res = await fetch(`/api/earnings?${params}`)
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    const data = await res.json()
+    const body = await res.json()
+    // API route returns { earnings: [...] }
+    const data = body.earnings ?? body
     if (!Array.isArray(data) || data.length === 0) throw new Error('No earnings data')
     return data
   } catch (err) {
@@ -200,7 +204,9 @@ export async function getInsiderSentiment(symbol: string): Promise<InsiderSentim
     logger.info('stock-service', `Fetching insider sentiment for ${symbol}`)
     const res = await fetch(`/api/insider-sentiment?symbol=${encodeURIComponent(symbol)}`)
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    const data = await res.json()
+    const body = await res.json()
+    // API route returns { sentiment: [...] }
+    const data = body.sentiment ?? body
     if (!Array.isArray(data) || data.length === 0) throw new Error('No insider data')
     return data
   } catch (err) {

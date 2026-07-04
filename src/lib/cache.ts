@@ -94,8 +94,8 @@ class ApiCache {
 export const CACHE_TTL = {
   QUOTE: 30 * 1000,           // 30 seconds — fast-moving data
   PROFILE: 24 * 60 * 60 * 1000, // 24 hours — rarely changes
-  MARKET_NEWS: 10 * 60 * 1000,  // 10 minutes
-  COMPANY_NEWS: 10 * 60 * 1000, // 10 minutes
+  MARKET_NEWS: 2 * 60 * 1000,   // 2 minutes — live feed
+  COMPANY_NEWS: 2 * 60 * 1000,  // 2 minutes — live feed
   RECOMMENDATION: 60 * 60 * 1000, // 1 hour
   EARNINGS: 60 * 60 * 1000,     // 1 hour
   INSIDER: 60 * 60 * 1000,      // 1 hour

@@ -67,6 +67,11 @@ function transformArticle(article: { headline: string; summary: string; source: 
   }
 }
 
+let _lastNewsSource: 'live' | 'fallback' = 'live'
+
+/** Returns whether the most recent news fetch used live or fallback data */
+export function getNewsDataSource(): 'live' | 'fallback' { return _lastNewsSource }
+
 /**
  * Fetch general market news. Falls back to mock data on error.
  */
@@ -75,11 +80,17 @@ export async function getMarketNews(category: string = 'general'): Promise<NewsI
     logger.info('news-service', `Fetching market news (category: ${category})`)
     const res = await fetch(`/api/news?category=${encodeURIComponent(category)}`)
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    const articles = await res.json()
+    const body = await res.json()
+    // If the API returned an error object, treat as failure
+    if (body.error) throw new Error(body.error)
+    // API route returns { news: [...] }
+    const articles = body.news ?? body
     if (!Array.isArray(articles) || articles.length === 0) throw new Error('No news articles')
+    _lastNewsSource = 'live'
     return articles.map(transformArticle)
   } catch (err) {
     logger.warn('news-service', `Falling back to mock market news: ${err}`)
+    _lastNewsSource = 'fallback'
     return getFallbackNews()
   }
 }
@@ -95,7 +106,9 @@ export async function getCompanyNews(symbol: string, from?: string, to?: string)
     if (to) params.set('to', to)
     const res = await fetch(`/api/company-news?${params}`)
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    const articles = await res.json()
+    const body = await res.json()
+    // API route returns { news: [...] }
+    const articles = body.news ?? body
     if (!Array.isArray(articles)) throw new Error('Invalid response')
     return articles.map(transformArticle)
   } catch (err) {

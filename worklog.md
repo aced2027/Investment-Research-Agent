@@ -1,22 +1,23 @@
 ---
 Task ID: 1
 Agent: Main Agent
-Task: Build Investment Insight Research Agent - 5 screen web application
+Task: Fix news feed to use live Finnhub API data instead of mock/fallback data
 
 Work Log:
-- Attempted to download Stitch project assets via cdn.stitch.design — CDN returned 521 (server down), proceeded to build from project specs
-- Initialized fullstack dev environment (Next.js 16, TypeScript, Tailwind CSS 4, shadcn/ui)
-- Created custom dark financial theme with emerald green primary, gain/loss semantic colors, and AI accent tokens
-- Built Zustand store for navigation state management (useAppStore)
-- Created comprehensive mock market data (8 tickers, 6 news items, sector data, trend data, AI insights)
-- Built collapsible sidebar navigation with animated AI pulse indicator
-- Built 5 screens: Design System (color/typography/spacing/components/charts), News Feed & Summarizer (search/filter/AI summarize), Ticker Research Detail (price chart/volume/key metrics/AI insights), Trend Analysis Report (4 tabs: overview/sentiment/risk/AI report), Market Intelligence Dashboard (indices/insights/sector chart/AI chat agent/top movers)
-- Fixed 5 ESLint errors (conditional hooks, undefined imports, unused imports)
-- Verified all 5 screens via Agent Browser — all render correctly with full interactivity
+- Discovered root cause: API routes return wrapped responses ({ news: [...] }) but services expected raw arrays ([...]) — causing every API call to fail and silently fall back to mock data
+- Fixed news-service.ts: getMarketNews() and getCompanyNews() now extract body.news from wrapped response
+- Fixed stock-service.ts: getRecommendations(), getEarnings(), getInsiderSentiment() now unwrap body.recommendations/body.earnings/body.sentiment
+- Added body.error check in getMarketNews() to detect API error responses wrapped in HTTP 200
+- Reduced news cache TTL from 10 min to 2 min for more live feel
+- Added cache-bust support (?refresh=true) in /api/news route
+- Added getNewsDataSource() export to track live vs fallback status
+- Rewrote news-feed.tsx: auto-refresh every 60s, LIVE/OFFLINE indicator, pulsing green dot, "NEW" badges on fresh articles, manual refresh button, last-updated timestamp, multi-ticker news fetch (AAPL, NVDA, MSFT), sorted by recency, footer showing data source
+- Added external image support in next.config.ts for Finnhub news images
+- Added apiCache import in /api/news for cache invalidation
+- Build verified clean with no errors
 
 Stage Summary:
-- Delivered complete 5-screen Investment Research Agent application
-- AI features: chat agent on dashboard, news summarization, research insights, trend AI report
-- Dark premium financial theme with emerald green palette
-- All charts render with Recharts (area, bar, line, radar, pie, composed)
-- Screenshots saved to /home/z/my-project/download/ for all screens
+- The API key `d94d291r01qj2cibr1a0d94d291r01qj2cibr1ag` is INVALID — Finnhub returns HTML error pages instead of JSON
+- App correctly shows "OFFLINE" badge and "Showing cached data — API key may be invalid" when API fails
+- When a valid Finnhub API key is provided, all news will be live with auto-refresh
+- All code changes are backward-compatible and the fallback system still works
