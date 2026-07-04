@@ -221,7 +221,7 @@ export function TrendAnalysisScreen() {
                     <ReferenceLine x={0} stroke="rgba(255,255,255,0.2)" />
                     <Bar dataKey="performance" radius={[0, 4, 4, 0]}>
                       {weeklySectorData.map((entry, index) => (
-                        <rect key={index} fill={entry.barColor} />
+                        <Cell key={index} fill={entry.barColor} />
                       ))}
                     </Bar>
                   </BarChart>

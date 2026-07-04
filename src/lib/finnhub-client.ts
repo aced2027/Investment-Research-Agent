@@ -84,7 +84,7 @@ async function fetchFinnhub<T>(
     if (!res.ok) {
       const body = await res.text().catch(() => '')
       if (res.status === 429) throw new FinnhubRateLimitError(endpoint)
-      throw new FinnhubError(res.status, body || res.statusText, endpoint)
+      throw new FinnhubError(res.status, body.slice(0, 200) || res.statusText, endpoint)
     }
 
     const contentType = res.headers.get('content-type') || ''

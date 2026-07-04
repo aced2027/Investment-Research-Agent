@@ -1,0 +1,647 @@
+     1→     1→'use client'
+     2→     2→
+     3→     3→import { useState, useRef, useEffect, useMemo, useSyncExternalStore } from 'react'
+     4→     4→import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+     5→     5→import { Badge } from '@/components/ui/badge'
+     6→     6→import { Button } from '@/components/ui/button'
+     7→     7→import { Input } from '@/components/ui/input'
+     8→     8→import { ScrollArea } from '@/components/ui/scroll-area'
+     9→     9→import { Separator } from '@/components/ui/separator'
+    10→    10→import { Skeleton } from '@/components/ui/skeleton'
+    11→    11→import { cn } from '@/lib/utils'
+    12→    12→import {
+    13→    13→  LayoutDashboard,
+    14→    14→  Sparkles,
+    15→    15→  Bot,
+    16→    16→  ArrowUpRight,
+    17→    17→  ArrowDownRight,
+    18→    18→  TrendingUp,
+    19→    19→  TrendingDown,
+    20→    20→  AlertTriangle,
+    21→    21→  Target,
+    22→    22→  Send,
+    23→    23→  Loader2,
+    24→    24→  BarChart3,
+    25→    25→  Activity,
+    26→    26→  Zap,
+    27→    27→  Brain,
+    28→    28→  Eye,
+    29→    29→  Rss,
+    30→    30→  RefreshCw,
+    31→    31→} from 'lucide-react'
+    32→    32→import {
+    33→    33→  AreaChart, Area, BarChart, Bar, LineChart, Line,
+    34→    34→  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, ReferenceLine,
+    35→    35→} from 'recharts'
+    36→    36→import { getDashboardSnapshot, generateInsightsFromData, type MarketIndex, type AIInsight, type TopMover } from '@/services/analysis-service'
+    37→    37→import { getMarketNews, summarizeArticles, type NewsItem } from '@/services/news-service'
+    38→    38→import { getStockQuote, getRecommendations, getInsiderSentiment, type StockQuote } from '@/services/stock-service'
+    39→    39→
+    40→    40→function generateSparkline(price: number, changePercent: number): number[] {
+    41→    41→  const points: number[] = []
+    42→    42→  let p = price * (1 - changePercent / 100 * 3)
+    43→    43→  const trend = changePercent > 0 ? 0.3 : -0.3
+    44→    44→  for (let i = 0; i < 7; i++) {
+    45→    45→    p += (trend + (i / 7) * (changePercent > 0 ? 0.5 : -0.5)) * (price / 100)
+    46→    46→    points.push(Math.round(p * 100) / 100)
+    47→    47→  }
+    48→    48→  points[6] = price
+    49→    49→  return points
+    50→    50→}
+    51→    51→
+    52→    52→interface ChatMessage {
+    53→    53→  id: string
+    54→    54→  role: 'user' | 'assistant'
+    55→    55→  content: string
+    56→    56→  timestamp: string
+    57→    57→}
+    58→    58→
+    59→    59→const aiResponses: Record<string, string> = {
+    60→    60→  default: "I've analyzed the current market conditions. The S&P 500 is showing strength with a 0.52% gain today, driven primarily by technology and healthcare sectors. Key observations:\n\n• **Mega-cap tech** continues to lead the rally with NVIDIA up 4.12%\n• **Energy sector** under pressure due to OPEC+ production increase\n• **Fed pivot** expectations are supporting risk-on sentiment\n\nWould you like me to dive deeper into any specific area?",
+    61→    61→  nvda: "Here's my analysis on NVIDIA (NVDA):\n\n**Current Price:** $131.88 (+4.12%)\n**Market Cap:** $3.24T\n\n**Key Observations:**\n• Record Q2 revenue of $30B exceeded consensus by 12%\n• Data center revenue grew 250% YoY — AI demand remains insatiable\n• Gross margin expanded to 78.4%, indicating strong pricing power\n• Supply chain constraints are the primary growth limiter\n\n**Risk Factors:**\n• P/E of 65.2x reflects elevated expectations\n• Any demand slowdown could trigger multiple compression\n• Increasing competition from AMD and custom silicon\n\n**My Assessment:** Strong buy on dips above $120. Key resistance at $140.76 (52W high).",
+    62→    62→  market: "**Market Overview — July 4, 2026:**\n\nThe market shows a mixed picture today:\n\n**Positive Signals:**\n• S&P 500 up 0.52% — breadth improving\n• Russell 2000 leading with 0.59% gain — small-cap rotation beginning\n• VIX compressed below 14 — low fear environment\n\n**Concerns:**\n• NASDAQ declining 0.25% — tech profit-taking\n• Energy sector down 2.15% on OPEC+ news\n• China PMI contracting for 3rd month\n\n**AI Assessment:** Market conditions favor selective risk-taking. Focus on sectors benefiting from Fed pivot (rate sensitives) while avoiding energy exposure. Watch for small-cap continuation.",
+    63→    63→  risk: "**Current Risk Assessment:**\n\nOverall Risk Score: **58/100** (Moderate-Elevated)\n\n**Key Risk Factors:**\n1. **Concentration Risk (55/100):** Top 5 stocks represent 25% of S&P 500 weight\n2. **Volatility Risk (65/100):** VIX compression historically precedes expansion\n3. **Geopolitical Risk (72/100):** Multiple concurrent flashpoints\n\n**Hedging Recommendations:**\n• Consider protective puts on concentrated positions\n• Gold allocation as geopolitical hedge\n• Reduce energy exposure given OPEC+ uncertainty\n\nThe environment supports measured risk-taking but not aggressive leverage.",
+    64→    64→}
+    65→    65→
+    66→    66→function MiniSparkline({ data, positive }: { data: number[]; positive: boolean }) {
+    67→    67→  return (
+    68→    68→    <div className="w-16 h-6">
+    69→    69→      <ResponsiveContainer width="100%" height="100%">
+    70→    70→        <LineChart data={data.map((v, i) => ({ i, v }))}>
+    71→    71→          <Line
+    72→    72→            type="monotone"
+    73→    73→            dataKey="v"
+    74→    74→            stroke={positive ? '#10b981' : '#ef4444'}
+    75→    75→            strokeWidth={1.5}
+    76→    76→            dot={false}
+    77→    77→          />
+    78→    78→        </LineChart>
+    79→    79→      </ResponsiveContainer>
+    80→    80→    </div>
+    81→    81→  )
+    82→    82→}
+    83→    83→
+    84→    84→function AIChatPanel() {
+    85→    85→  const mounted = useSyncExternalStore(
+    86→    86→    () => () => {},
+    87→    87→    () => true,
+    88→    88→    () => false,
+    89→    89→  )
+    90→    90→  const [messages, setMessages] = useState<ChatMessage[]>([
+    91→    91→    {
+    92→    92→      id: 'welcome',
+    93→    93→      role: 'assistant',
+    94→    94→      content: 'Welcome to InvestIQ AI Research Agent. I can help you analyze market trends, research specific tickers, assess risk factors, and summarize news. What would you like to explore today?',
+    95→    95→      timestamp: '',
+    96→    96→    },
+    97→    97→  ])
+    98→    98→  const [input, setInput] = useState('')
+    99→    99→  const [isTyping, setIsTyping] = useState(false)
+   100→   100→  const scrollRef = useRef<HTMLDivElement>(null)
+   101→   101→
+   102→   102→  useEffect(() => {
+   103→   103→    if (scrollRef.current) {
+   104→   104→      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+   105→   105→    }
+   106→   106→  }, [messages, isTyping])
+   107→   107→
+   108→   108→  const getAIResponse = (query: string): string => {
+   109→   109→    const q = query.toLowerCase()
+   110→   110→    if (q.includes('nvda') || q.includes('nvidia')) return aiResponses.nvda
+   111→   111→    if (q.includes('market') || q.includes('overview') || q.includes('summary')) return aiResponses.market
+   112→   112→    if (q.includes('risk') || q.includes('danger') || q.includes('caution')) return aiResponses.risk
+   113→   113→    return aiResponses.default
+   114→   114→  }
+   115→   115→
+   116→   116→  const handleSend = async () => {
+   117→   117→    if (!input.trim() || isTyping) return
+   118→   118→
+   119→   119→    const userMsg: ChatMessage = {
+   120→   120→      id: Date.now().toString(),
+   121→   121→      role: 'user',
+   122→   122→      content: input.trim(),
+   123→   123→      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+   124→   124→    }
+   125→   125→    setMessages((prev) => [...prev, userMsg])
+   126→   126→    setInput('')
+   127→   127→    setIsTyping(true)
+   128→   128→
+   129→   129→    await new Promise((resolve) => setTimeout(resolve, 1800))
+   130→   130→
+   131→   131→    const response = getAIResponse(userMsg.content)
+   132→   132→    const aiMsg: ChatMessage = {
+   133→   133→      id: (Date.now() + 1).toString(),
+   134→   134→      role: 'assistant',
+   135→   135→      content: response,
+   136→   136→      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+   137→   137→    }
+   138→   138→    setMessages((prev) => [...prev, aiMsg])
+   139→   139→    setIsTyping(false)
+   140→   140→  }
+   141→   141→
+   142→   142→  return (
+   143→   143→    <Card className="bg-card border-primary/30 flex flex-col h-full">
+   144→   144→      <CardHeader className="pb-3 shrink-0">
+   145→   145→        <CardTitle className="text-sm flex items-center gap-2">
+   146→   146→          <div className="flex items-center justify-center w-6 h-6 rounded-md bg-primary/15">
+   147→   147→            <Bot className="w-3.5 h-3.5 text-primary" />
+   148→   148→          </div>
+   149→   149→          AI Research Agent
+   150→   150→          <div className="w-2 h-2 rounded-full bg-primary ai-pulse ml-1" />
+   151→   151→        </CardTitle>
+   152→   152→        <CardDescription className="text-xs">Ask about markets, tickers, risk, or news</CardDescription>
+   153→   153→      </CardHeader>
+   154→   154→      <Separator className="bg-border" />
+   155→   155→
+   156→   156→      <ScrollArea className="flex-1 p-4" ref={scrollRef}>
+   157→   157→        <div className="space-y-4">
+   158→   158→          {messages.map((msg) => (
+   159→   159→            <div key={msg.id} className={cn('flex gap-2', msg.role === 'user' ? 'justify-end' : 'justify-start')}>
+   160→   160→              {msg.role === 'assistant' && (
+   161→   161→                <div className="w-6 h-6 rounded-md bg-primary/15 flex items-center justify-center shrink-0 mt-0.5">
+   162→   162→                  <Sparkles className="w-3 h-3 text-primary" />
+   163→   163→                </div>
+   164→   164→              )}
+   165→   165→              <div
+   166→   166→                className={cn(
+   167→   167→                  'max-w-[80%] rounded-lg px-3 py-2 text-sm leading-relaxed',
+   168→   168→                  msg.role === 'user'
+   169→   169→                    ? 'bg-primary text-primary-foreground'
+   170→   170→                    : 'bg-muted/50 border border-border'
+   171→   171→                )}
+   172→   172→              >
+   173→   173→                <p className="whitespace-pre-wrap">{msg.content}</p>
+   174→   174→                <span className="text-[10px] opacity-50 mt-1 block">{mounted && msg.timestamp ? msg.timestamp : '\u00A0'}</span>
+   175→   175→              </div>
+   176→   176→            </div>
+   177→   177→          ))}
+   178→   178→          {isTyping && (
+   179→   179→            <div className="flex gap-2">
+   180→   180→              <div className="w-6 h-6 rounded-md bg-primary/15 flex items-center justify-center shrink-0">
+   181→   181→                <Sparkles className="w-3 h-3 text-primary" />
+   182→   182→              </div>
+   183→   183→              <div className="bg-muted/50 border border-border rounded-lg px-4 py-3">
+   184→   184→                <div className="flex gap-1">
+   185→   185→                  <div className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '0ms' }} />
+   186→   186→                  <div className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '150ms' }} />
+   187→   187→                  <div className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '300ms' }} />
+   188→   188→                </div>
+   189→   189→              </div>
+   190→   190→            </div>
+   191→   191→          )}
+   192→   192→        </div>
+   193→   193→      </ScrollArea>
+   194→   194→
+   195→   195→      <div className="p-3 border-t border-border shrink-0">
+   196→   196→        <form
+   197→   197→          onSubmit={(e) => { e.preventDefault(); handleSend() }}
+   198→   198→          className="flex gap-2"
+   199→   199→        >
+   200→   200→          <Input
+   201→   201→            placeholder="Ask about markets, NVDA, risk..."
+   202→   202→            className="bg-muted/50 border-border focus:border-primary/50 text-sm"
+   203→   203→            value={input}
+   204→   204→            onChange={(e) => setInput(e.target.value)}
+   205→   205→            disabled={isTyping}
+   206→   206→          />
+   207→   207→          <Button
+   208→   208→            type="submit"
+   209→   209→            size="sm"
+   210→   210→            className="bg-primary hover:bg-primary/90 text-primary-foreground shrink-0"
+   211→   211→            disabled={isTyping || !input.trim()}
+   212→   212→          >
+   213→   213→            {isTyping ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+   214→   214→          </Button>
+   215→   215→        </form>
+   216→   216→        <div className="flex gap-2 mt-2 flex-wrap">
+   217→   217→          {['Market overview', 'Analyze NVDA', 'Risk assessment'].map((q) => (
+   218→   218→            <button
+   219→   219→              key={q}
+   220→   220→              className="text-[11px] px-2 py-0.5 rounded-full bg-muted/50 border border-border text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors"
+   221→   221→              onClick={() => { setInput(q); }}
+   222→   222→            >
+   223→   223→              {q}
+   224→   224→            </button>
+   225→   225→          ))}
+   226→   226→        </div>
+   227→   227→      </div>
+   228→   228→    </Card>
+   229→   229→  )
+   230→   230→}
+   231→   231→
+   232→   232→/** Hardcoded sector data — Finnhub has no direct sector performance endpoint */
+   233→   233→const sectorPerformance = [
+   234→   234→  { name: 'Technology', performance: 2.34, volume: '89.2B' },
+   235→   235→  { name: 'Healthcare', performance: 1.12, volume: '45.6B' },
+   236→   236→  { name: 'Financials', performance: 0.87, volume: '62.1B' },
+   237→   237→  { name: 'Consumer Disc.', performance: 0.65, volume: '38.4B' },
+   238→   238→  { name: 'Industrials', performance: 0.34, volume: '28.7B' },
+   239→   239→  { name: 'Utilities', performance: 0.22, volume: '12.3B' },
+   240→   240→  { name: 'Real Estate', performance: -0.15, volume: '8.9B' },
+   241→   241→  { name: 'Materials', performance: -0.48, volume: '18.2B' },
+   242→   242→  { name: 'Energy', performance: -2.15, volume: '42.8B' },
+   243→   243→  { name: 'Comm. Services', performance: -0.31, volume: '32.5B' },
+   244→   244→]
+   245→   245→
+   246→   246→export function DashboardScreen() {
+   247→   247→  const [indices, setIndices] = useState<MarketIndex[]>([])
+   248→   248→  const [gainers, setGainers] = useState<TopMover[]>([])
+   249→   249→  const [losers, setLosers] = useState<TopMover[]>([])
+   250→   250→  const [insights, setInsights] = useState<AIInsight[]>([])
+   251→   251→  const [news, setNews] = useState<NewsItem[]>([])
+   252→   252→  const [loading, setLoading] = useState(true)
+   253→   253→  const [error, setError] = useState<string | null>(null)
+   254→   254→
+   255→   255→  useEffect(() => {
+   256→   256→    let cancelled = false
+   257→   257→
+   258→   258→    async function load() {
+   259→   259→      try {
+   260→   260→        setLoading(true)
+   261→   261→        setError(null)
+   262→   262→        const data = await getDashboardSnapshot()
+   263→   263→        if (cancelled) return
+   264→   264→        setIndices(data.indices)
+   265→   265→        setGainers(data.movers.gainers)
+   266→   266→        setLosers(data.movers.losers)
+   267→   267→        setNews(data.news)
+   268→   268→        // Generate insights from top gainer data
+   269→   269→        if (data.movers.gainers.length > 0) {
+   270→   270→          const topGainer = data.movers.gainers[0]
+   271→   271→          try {
+   272→   272→            const quote = await getStockQuote(topGainer.symbol)
+   273→   273→            if (cancelled) return
+   274→   274→            const recs = await getRecommendations(topGainer.symbol).catch(() => [])
+   275→   275→            if (cancelled) return
+   276→   276→            const insider = await getInsiderSentiment(topGainer.symbol).catch(() => [])
+   277→   277→            if (cancelled) return
+   278→   278→            const generated = generateInsightsFromData(quote, recs, insider)
+   279→   279→            setInsights(generated.length > 0 ? generated : [
+   280→   280→              { type: 'opportunity' as const, text: `${topGainer.symbol} leading gainers today at +${topGainer.change.toFixed(2)}%. Strong momentum across technology sector.`, confidence: 75 }
+   281→   281→            ])
+   282→   282→          } catch {
+   283→   283→            if (cancelled) return
+   284→   284→            setInsights([
+   285→   285→              { type: 'opportunity' as const, text: `${topGainer.symbol} leading gainers today at +${topGainer.change.toFixed(2)}%. Strong momentum across technology sector.`, confidence: 75 }
+   286→   286→            ])
+   287→   287→          }
+   288→   288→        }
+   289→   289→      } catch (err) {
+   290→   290→        if (cancelled) return
+   291→   291→        setError(err instanceof Error ? err.message : 'Failed to load market data')
+   292→   292→      } finally {
+   293→   293→        if (!cancelled) {
+   294→   294→          setLoading(false)
+   295→   295→        }
+   296→   296→      }
+   297→   297→    }
+   298→   298→    load()
+   299→   299→    // Refresh every 30 seconds
+   300→   300→    const interval = setInterval(load, 30000)
+   301→   301→    return () => {
+   302→   302→      cancelled = true
+   303→   303→      clearInterval(interval)
+   304→   304→    }
+   305→   305→  }, [])
+   306→   306→
+   307→   307→  const retry = () => {
+   308→   308→    setError(null)
+   309→   309→    setLoading(true)
+   310→   310→  }
+   311→   311→
+   312→   312→  const tickerItems = useMemo(() => {
+   313→   313→    return indices.map(i => ({
+   314→   314→      symbol: i.symbol,
+   315→   315→      price: i.value,
+   316→   316→      change: i.changePercent,
+   317→   317→    })).concat(gainers.slice(0, 4).map(g => ({
+   318→   318→      symbol: g.symbol,
+   319→   319→      price: g.price,
+   320→   320→      change: g.change,
+   321→   321→    })))
+   322→   322→  }, [indices, gainers])
+   323→   323→
+   324→   324→  const sectorChartData = useMemo(() => sectorPerformance.map((s) => ({
+   325→   325→    name: s.name.length > 8 ? s.name.slice(0, 8) + '.' : s.name,
+   326→   326→    fullName: s.name,
+   327→   327→    value: s.performance,
+   328→   328→  })), [])
+   329→   329→
+   330→   330→  // Loading state
+   331→   331→  if (loading) {
+   332→   332→    return (
+   333→   333→      <div className="space-y-5">
+   334→   334→        <Skeleton className="h-8 w-64" />
+   335→   335→        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+   336→   336→          {[...Array(4)].map((_, i) => (
+   337→   337→            <Card key={i} className="bg-card border-border"><CardContent className="p-4"><Skeleton className="h-20 w-full" /></CardContent></Card>
+   338→   338→          ))}
+   339→   339→        </div>
+   340→   340→        <Skeleton className="h-96 w-full" />
+   341→   341→      </div>
+   342→   342→    )
+   343→   343→  }
+   344→   344→
+   345→   345→  // Error state
+   346→   346→  if (error) {
+   347→   347→    return (
+   348→   348→      <div className="space-y-5">
+   349→   349→        <Card className="bg-loss/5 border-loss/20">
+   350→   350→          <CardContent className="p-6 text-center space-y-3">
+   351→   351→            <AlertTriangle className="w-8 h-8 text-loss mx-auto" />
+   352→   352→            <p className="text-sm text-muted-foreground">{error}</p>
+   353→   353→            <Button onClick={retry} variant="outline" className="border-primary/30 text-primary">Retry</Button>
+   354→   354→          </CardContent>
+   355→   355→        </Card>
+   356→   356→      </div>
+   357→   357→    )
+   358→   358→  }
+   359→   359→
+   360→   360→  return (
+   361→   361→    <div className="space-y-5">
+   362→   362→      {/* Ticker Tape */}
+   363→   363→      <div className="overflow-hidden rounded-lg bg-muted/30 border border-border py-2 px-4">
+   364→   364→        <div className="flex gap-6 ticker-tape whitespace-nowrap">
+   365→   365→          {[...tickerItems, ...tickerItems].map((t, i) => (
+   366→   366→            <div key={`${t.symbol}-${i}`} className="flex items-center gap-2 text-sm">
+   367→   367→              <span className="font-semibold font-mono text-xs">{t.symbol}</span>
+   368→   368→              <span className="text-xs tabular-nums">${t.price.toFixed(2)}</span>
+   369→   369→              <span className={cn('text-xs font-medium', t.change >= 0 ? 'text-gain' : 'text-loss')}>
+   370→   370→                {t.change >= 0 ? '+' : ''}{t.change.toFixed(2)}%
+   371→   371→              </span>
+   372→   372→            </div>
+   373→   373→          ))}
+   374→   374→        </div>
+   375→   375→      </div>
+   376→   376→
+   377→   377→      {/* Header */}
+   378→   378→      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+   379→   379→        <div>
+   380→   380→          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
+   381→   381→            <LayoutDashboard className="w-8 h-8 text-primary" />
+   382→   382→            Market Intelligence
+   383→   383→          </h1>
+   384→   384→          <p className="text-muted-foreground mt-1">
+   385→   385→            Real-time market overview with AI-powered insights
+   386→   386→          </p>
+   387→   387→        </div>
+   388→   388→        <div className="flex items-center gap-2">
+   389→   389→          <Badge className="bg-gain/15 text-gain border-gain/20 text-xs px-3 py-1">
+   390→   390→            <Activity className="w-3 h-3 mr-1" />
+   391→   391→            Markets Open
+   392→   392→          </Badge>
+   393→   393→          <Badge variant="outline" className="border-border text-xs text-muted-foreground">
+   394→   394→            <RefreshCw className="w-3 h-3 mr-1" />
+   395→   395→            Live
+   396→   396→          </Badge>
+   397→   397→        </div>
+   398→   398→      </div>
+   399→   399→
+   400→   400→      {/* Market Indices */}
+   401→   401→      {indices.length === 0 ? (
+   402→   402→        <Card className="bg-card border-border">
+   403→   403→          <CardContent className="p-6 text-center">
+   404→   404→            <p className="text-sm text-muted-foreground">Market data unavailable. The market may be closed.</p>
+   405→   405→          </CardContent>
+   406→   406→        </Card>
+   407→   407→      ) : (
+   408→   408→        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+   409→   409→          {indices.map((idx) => {
+   410→   410→            const sparkline = generateSparkline(idx.value, idx.changePercent)
+   411→   411→            return (
+   412→   412→              <Card key={idx.symbol} className="bg-card border-border hover:border-primary/20 transition-colors">
+   413→   413→                <CardContent className="p-4">
+   414→   414→                  <div className="flex items-center justify-between mb-2">
+   415→   415→                    <span className="text-xs text-muted-foreground font-medium">{idx.name}</span>
+   416→   416→                    <MiniSparkline data={sparkline} positive={idx.changePercent >= 0} />
+   417→   417→                  </div>
+   418→   418→                  <div className="text-lg font-bold tabular-nums">{idx.value.toLocaleString()}</div>
+   419→   419→                  <div className={cn('text-xs font-medium flex items-center gap-0.5', idx.changePercent >= 0 ? 'text-gain' : 'text-loss')}>
+   420→   420→                    {idx.changePercent >= 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+   421→   421→                    {idx.changePercent >= 0 ? '+' : ''}{idx.change.toFixed(2)} ({idx.changePercent >= 0 ? '+' : ''}{idx.changePercent.toFixed(2)}%)
+   422→   422→                  </div>
+   423→   423→                </CardContent>
+   424→   424→              </Card>
+   425→   425→            )
+   426→   426→          })}
+   427→   427→        </div>
+   428→   428→      )}
+   429→   429→
+   430→   430→      {/* Main Content Grid */}
+   431→   431→      <div className="grid grid-cols-1 xl:grid-cols-12 gap-5">
+   432→   432→        {/* Left Column */}
+   433→   433→        <div className="xl:col-span-7 space-y-5">
+   434→   434→          {/* AI Insights */}
+   435→   435→          <Card className="bg-card border-primary/30">
+   436→   436→            <CardHeader className="pb-3">
+   437→   437→              <CardTitle className="text-sm flex items-center gap-2">
+   438→   438→                <Brain className="w-4 h-4 text-primary" />
+   439→   439→                AI Insights
+   440→   440→                <div className="w-2 h-2 rounded-full bg-primary ai-pulse" />
+   441→   441→              </CardTitle>
+   442→   442→            </CardHeader>
+   443→   443→            <CardContent className="space-y-3">
+   444→   444→              {insights.length === 0 ? (
+   445→   445→                <p className="text-xs text-muted-foreground text-center py-4">No insights available at this time.</p>
+   446→   446→              ) : (
+   447→   447→                insights.map((insight, i) => (
+   448→   448→                  <div key={i} className={cn(
+   449→   449→                    'p-3 rounded-lg border space-y-1.5',
+   450→   450→                    insight.type === 'opportunity' ? 'bg-gain/5 border-gain/15' :
+   451→   451→                    insight.type === 'risk' ? 'bg-loss/5 border-loss/15' :
+   452→   452→                    'bg-chart-3/5 border-chart-3/15'
+   453→   453→                  )}>
+   454→   454→                    <div className="flex items-center justify-between">
+   455→   455→                      <div className="flex items-center gap-2">
+   456→   456→                        {insight.type === 'opportunity' ? <Target className="w-3.5 h-3.5 text-gain" /> :
+   457→   457→                         insight.type === 'risk' ? <AlertTriangle className="w-3.5 h-3.5 text-loss" /> :
+   458→   458→                         <Zap className="w-3.5 h-3.5 text-chart-3" />}
+   459→   459→                        <span className="text-xs font-medium capitalize">{insight.type}</span>
+   460→   460→                      </div>
+   461→   461→                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-border">
+   462→   462→                        {insight.confidence}% conf.
+   463→   463→                      </Badge>
+   464→   464→                    </div>
+   465→   465→                    <p className="text-xs text-muted-foreground leading-relaxed">{insight.text}</p>
+   466→   466→                  </div>
+   467→   467→                ))
+   468→   468→              )}
+   469→   469→            </CardContent>
+   470→   470→          </Card>
+   471→   471→
+   472→   472→          {/* Sector Performance Chart */}
+   473→   473→          <Card className="bg-card border-border">
+   474→   474→            <CardHeader className="pb-2">
+   475→   475→              <CardTitle className="text-sm flex items-center gap-2">
+   476→   476→                <BarChart3 className="w-4 h-4 text-primary" />
+   477→   477→                Sector Performance
+   478→   478→              </CardTitle>
+   479→   479→            </CardHeader>
+   480→   480→            <CardContent>
+   481→   481→              <div className="h-52">
+   482→   482→                <ResponsiveContainer width="100%" height="100%">
+   483→   483→                  <BarChart data={sectorChartData} layout="vertical">
+   484→   484→                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" horizontal={false} />
+   485→   485→                    <XAxis
+   486→   486→                      type="number"
+   487→   487→                      tick={{ fontSize: 10, fill: 'rgba(255,255,255,0.35)' }}
+   488→   488→                      tickLine={false}
+   489→   489→                      tickFormatter={(v) => `${v.toFixed(1)}%`}
+   490→   490→                    />
+   491→   491→                    <YAxis
+   492→   492→                      type="category"
+   493→   493→                      dataKey="name"
+   494→   494→                      tick={{ fontSize: 10, fill: 'rgba(255,255,255,0.55)' }}
+   495→   495→                      tickLine={false}
+   496→   496→                      width={75}
+   497→   497→                    />
+   498→   498→                    <Tooltip
+   499→   499→                      contentStyle={{
+   500→   500→                        background: '#22223b',
+   501→   501→                        border: '1px solid #33334d',
+   502→   502→                        borderRadius: 8,
+   503→   503→                        fontSize: 12,
+   504→   504→                      }}
+   505→   505→                      formatter={(value: number, name: string, props: { payload: { fullName: string } }) => [
+   506→   506→                        `${value.toFixed(2)}%`,
+   507→   507→                        props.payload.fullName,
+   508→   508→                      ]}
+   509→   509→                    />
+   510→   510→                    <ReferenceLine x={0} stroke="rgba(255,255,255,0.15)" />
+   511→   511→                    <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+   512→   512→                      {sectorChartData.map((entry, index) => (
+   513→   513→                        <Cell
+   514→   514→                          key={index}
+   515→   515→                          fill={entry.value >= 0 ? '#10b981' : '#ef4444'}
+   516→   516→                          opacity={entry.value >= 0 ? 0.7 + Math.abs(entry.value) * 0.1 : 0.7 + Math.abs(entry.value) * 0.1}
+   517→   517→                        />
+   518→   518→                      ))}
+   519→   519→                    </Bar>
+   520→   520→                  </BarChart>
+   521→   521→                </ResponsiveContainer>
+   522→   522→              </div>
+   523→   523→            </CardContent>
+   524→   524→          </Card>
+   525→   525→
+   526→   526→          {/* News Cards */}
+   527→   527→          {news.length > 0 && (
+   528→   528→            <Card className="bg-card border-border">
+   529→   529→              <CardHeader className="pb-2">
+   530→   530→                <CardTitle className="text-sm flex items-center gap-2">
+   531→   531→                  <Rss className="w-4 h-4 text-primary" />
+   532→   532→                  Latest Market News
+   533→   533→                </CardTitle>
+   534→   534→              </CardHeader>
+   535→   535→              <CardContent className="space-y-3">
+   536→   536→                {news.slice(0, 5).map((item) => (
+   537→   537→                  <div key={item.id} className="flex items-start gap-3 p-3 rounded-lg bg-muted/30 border border-border">
+   538→   538→                    <div className="flex-1 min-w-0">
+   539→   539→                      <p className="text-sm font-medium leading-snug line-clamp-2">{item.title}</p>
+   540→   540→                      <div className="flex items-center gap-2 mt-1.5">
+   541→   541→                        <span className="text-[11px] text-muted-foreground">{item.source}</span>
+   542→   542→                        <span className="text-[11px] text-muted-foreground">·</span>
+   543→   543→                        <span className="text-[11px] text-muted-foreground">{item.time}</span>
+   544→   544→                        {item.sentiment !== 'neutral' && (
+   545→   545→                          <Badge variant="outline" className={cn(
+   546→   546→                            'text-[10px] px-1.5 py-0 border',
+   547→   547→                            item.sentiment === 'bullish' ? 'text-gain border-gain/30 bg-gain/5' : 'text-loss border-loss/30 bg-loss/5'
+   548→   548→                          )}>
+   549→   549→                            {item.sentiment}
+   550→   550→                          </Badge>
+   551→   551→                        )}
+   552→   552→                      </div>
+   553→   553→                    </div>
+   554→   554→                    {item.tickers.length > 0 && (
+   555→   555→                      <div className="flex gap-1 shrink-0">
+   556→   556→                        {item.tickers.slice(0, 2).map((t) => (
+   557→   557→                          <Badge key={t} variant="outline" className="text-[10px] px-1.5 py-0 font-mono border-border">
+   558→   558→                            {t}
+   559→   559→                          </Badge>
+   560→   560→                        ))}
+   561→   561→                      </div>
+   562→   562→                    )}
+   563→   563→                  </div>
+   564→   564→                ))}
+   565→   565→              </CardContent>
+   566→   566→            </Card>
+   567→   567→          )}
+   568→   568→        </div>
+   569→   569→
+   570→   570→        {/* Right Column */}
+   571→   571→        <div className="xl:col-span-5 space-y-5">
+   572→   572→          {/* AI Chat Agent */}
+   573→   573→          <div className="h-[520px]">
+   574→   574→            <AIChatPanel />
+   575→   575→          </div>
+   576→   576→        </div>
+   577→   577→      </div>
+   578→   578→
+   579→   579→      {/* Top Movers */}
+   580→   580→      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+   581→   581→        <Card className="bg-card border-border">
+   582→   582→          <CardHeader className="pb-2">
+   583→   583→            <CardTitle className="text-sm flex items-center gap-2">
+   584→   584→              <TrendingUp className="w-4 h-4 text-gain" />
+   585→   585→              Top Gainers
+   586→   586→            </CardTitle>
+   587→   587→          </CardHeader>
+   588→   588→          <CardContent>
+   589→   589→            {gainers.length === 0 ? (
+   590→   590→              <p className="text-xs text-muted-foreground text-center py-4">No gainers data available.</p>
+   591→   591→            ) : (
+   592→   592→              <div className="space-y-2">
+   593→   593→                {gainers.map((g, i) => (
+   594→   594→                  <div key={g.symbol} className="flex items-center justify-between py-1.5">
+   595→   595→                    <div className="flex items-center gap-3">
+   596→   596→                      <span className="text-xs text-muted-foreground w-4">{i + 1}</span>
+   597→   597→                      <div>
+   598→   598→                        <span className="text-sm font-semibold font-mono">{g.symbol}</span>
+   599→   599→                        <span className="text-xs text-muted-foreground ml-2 hidden sm:inline">{g.name}</span>
+   600→   600→                      </div>
+   601→   601→                    </div>
+   602→   602→                    <div className="text-right">
+   603→   603→                      <span className="text-sm tabular-nums">${g.price.toFixed(2)}</span>
+   604→   604→                      <span className="ml-2 text-xs font-medium text-gain">+{g.change.toFixed(2)}%</span>
+   605→   605→                    </div>
+   606→   606→                  </div>
+   607→   607→                ))}
+   608→   608→              </div>
+   609→   609→            )}
+   610→   610→          </CardContent>
+   611→   611→        </Card>
+   612→   612→
+   613→   613→        <Card className="bg-card border-border">
+   614→   614→          <CardHeader className="pb-2">
+   615→   615→            <CardTitle className="text-sm flex items-center gap-2">
+   616→   616→              <TrendingDown className="w-4 h-4 text-loss" />
+   617→   617→              Top Losers
+   618→   618→            </CardTitle>
+   619→   619→          </CardHeader>
+   620→   620→          <CardContent>
+   621→   621→            {losers.length === 0 ? (
+   622→   622→              <p className="text-xs text-muted-foreground text-center py-4">No losers data available.</p>
+   623→   623→            ) : (
+   624→   624→              <div className="space-y-2">
+   625→   625→                {losers.map((l, i) => (
+   626→   626→                  <div key={l.symbol} className="flex items-center justify-between py-1.5">
+   627→   627→                    <div className="flex items-center gap-3">
+   628→   628→                      <span className="text-xs text-muted-foreground w-4">{i + 1}</span>
+   629→   629→                      <div>
+   630→   630→                        <span className="text-sm font-semibold font-mono">{l.symbol}</span>
+   631→   631→                        <span className="text-xs text-muted-foreground ml-2 hidden sm:inline">{l.name}</span>
+   632→   632→                      </div>
+   633→   633→                    </div>
+   634→   634→                    <div className="text-right">
+   635→   635→                      <span className="text-sm tabular-nums">${l.price.toFixed(2)}</span>
+   636→   636→                      <span className="ml-2 text-xs font-medium text-loss">{l.change.toFixed(2)}%</span>
+   637→   637→                    </div>
+   638→   638→                  </div>
+   639→   639→                ))}
+   640→   640→              </div>
+   641→   641→            )}
+   642→   642→          </CardContent>
+   643→   643→        </Card>
+   644→   644→      </div>
+   645→   645→    </div>
+   646→   646→  )
+   647→   647→}

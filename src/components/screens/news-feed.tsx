@@ -228,6 +228,7 @@ export function NewsFeedScreen() {
   const [dataSource, setDataSource] = useState<'live' | 'fallback'>('live')
   const prevCountRef = useRef(0)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const loadNewsRef = useRef<() => Promise<void>>()
 
   const loadNews = useCallback(async (showRefresh = false) => {
     try {
@@ -260,17 +261,16 @@ export function NewsFeedScreen() {
       })
 
       // Detect new articles
-      if (prevCountRef.current > 0) {
-        const existingIds = new Set(allNews.map(n => n.id))
+      setAllNews(prev => {
+        const existingIds = new Set(prev.map(n => n.id))
         const fresh = unique.filter(n => !existingIds.has(n.id))
         if (fresh.length > 0) {
           setNewArticleIds(new Set(fresh.map(n => n.id)))
-          // Clear the "NEW" badges after 10 seconds
           setTimeout(() => setNewArticleIds(new Set()), 10_000)
         }
-      }
+        return unique
+      })
 
-      setAllNews(unique)
       setArticleCount(unique.length)
       prevCountRef.current = unique.length
       setLastUpdated(new Date())
@@ -281,7 +281,10 @@ export function NewsFeedScreen() {
       setLoading(false)
       setIsRefreshing(false)
     }
-  }, [allNews, articleCount])
+  }, [])
+
+  // Keep ref in sync so interval always calls latest version
+  loadNewsRef.current = loadNews
 
   // Initial load
   useEffect(() => {
@@ -292,13 +295,12 @@ export function NewsFeedScreen() {
   // Auto-refresh every 60 seconds
   useEffect(() => {
     intervalRef.current = setInterval(() => {
-      loadNews(true)
+      loadNewsRef.current?.(true)
     }, REFRESH_INTERVAL_MS)
 
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current)
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const filteredNews = useMemo(() => {

@@ -1,6 +1,14 @@
 import { createServer } from "http";
 import next from "next";
 
+// Prevent unhandled rejections from crashing
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason?.message || reason);
+});
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err.message, err.stack);
+});
+
 const port = parseInt(process.env.PORT || "3000", 10);
 const app = next({ dev: false, dir: "/home/z/my-project" });
 const handle = app.getRequestHandler();
