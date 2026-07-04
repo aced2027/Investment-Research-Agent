@@ -1,33 +1,35 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Skeleton } from '@/components/ui/skeleton'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   TrendingUp,
   Sparkles,
   Brain,
   BarChart3,
-  Activity,
   AlertTriangle,
   ArrowUpRight,
   ArrowDownRight,
-  Target,
-  Zap,
   Globe,
   Layers,
+  Calendar,
+  Loader2,
 } from 'lucide-react'
-import { sectorPerformance, generateTrendData, newsItems, aiInsights } from '@/lib/market-data'
+import { sectorPerformance } from '@/lib/market-data'
+import { getInsiderSentiment, getEarnings, type InsiderSentimentItem, type EarningsItem } from '@/services/stock-service'
+import { getMarketNews, summarizeArticles, type NewsItem } from '@/services/news-service'
 import { cn } from '@/lib/utils'
 import {
-  AreaChart, Area, BarChart, Bar, LineChart, Line,
+  BarChart, Bar, LineChart, Line,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
-  ComposedChart, ReferenceLine,
+  ReferenceLine, Cell,
 } from 'recharts'
-
-const trendData = generateTrendData(60)
 
 // Deterministic PRNG for client-safe static data (avoids hydration mismatch)
 function mulberry32(seed: number) {
@@ -81,8 +83,75 @@ const weeklySectorData = sectorPerformance.slice(0, 6).map((s) => ({
 }))
 
 export function TrendAnalysisScreen() {
+  const [insiderData, setInsiderData] = useState<InsiderSentimentItem[]>([])
+  const [earningsData, setEarningsData] = useState<EarningsItem[]>([])
+  const [newsForAnalysis, setNewsForAnalysis] = useState<NewsItem[]>([])
+  const [aiReport, setAiReport] = useState<string | null>(null)
+  const [aiReportSentiment, setAiReportSentiment] = useState<string>('Neutral')
+  const [loading, setLoading] = useState(true)
+  const [reportLoading, setReportLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        setLoading(true)
+        setError(null)
+        const [insider, earnings, news] = await Promise.allSettled([
+          getInsiderSentiment('SPY'),
+          getEarnings(),
+          getMarketNews('general'),
+        ])
+        if (insider.status === 'fulfilled') setInsiderData(insider.value)
+        if (earnings.status === 'fulfilled') setEarningsData(earnings.value.slice(0, 20))
+        if (news.status === 'fulfilled') setNewsForAnalysis(news.value)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load trend data')
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadData()
+  }, [])
+
+  const handleGenerateReport = async () => {
+    if (newsForAnalysis.length === 0) return
+    setReportLoading(true)
+    try {
+      const articles = newsForAnalysis.slice(0, 10).map(n => ({
+        headline: n.title,
+        summary: n.summary,
+        source: n.source,
+        category: n.category,
+      }))
+      const result = await summarizeArticles(articles)
+      setAiReport(result.analysis)
+      setAiReportSentiment(result.sentiment)
+    } catch (err) {
+      setAiReport('Failed to generate AI report. Please try again later.')
+    } finally {
+      setReportLoading(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-10 w-72" />
+        <Skeleton className="h-72 w-full" />
+        <Skeleton className="h-64 w-full" />
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
+      {error && (
+        <div className="p-4 rounded-lg bg-loss/10 border border-loss/20 text-sm text-loss">
+          {error}
+        </div>
+      )}
+
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
@@ -99,7 +168,7 @@ export function TrendAnalysisScreen() {
             Auto-Generated
           </Badge>
           <Badge variant="outline" className="border-border text-xs text-muted-foreground">
-            Updated 15 min ago
+            Live Data
           </Badge>
         </div>
       </div>
@@ -114,54 +183,6 @@ export function TrendAnalysisScreen() {
 
         {/* Market Overview */}
         <TabsContent value="overview" className="space-y-4">
-          {/* Market Trend */}
-          <Card className="bg-card border-border">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Activity className="w-4 h-4 text-primary" />
-                Market Composite Trend (60-Day)
-              </CardTitle>
-              <CardDescription>Composite index tracking multiple market indicators</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-72">
-                <ResponsiveContainer width="100%" height="100%">
-                  <ComposedChart data={trendData}>
-                    <defs>
-                      <linearGradient id="trendGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.2} />
-                        <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                    <XAxis
-                      dataKey="date"
-                      tick={{ fontSize: 10, fill: 'rgba(255,255,255,0.4)' }}
-                      tickFormatter={(v) => v.slice(5)}
-                      tickLine={false}
-                    />
-                    <YAxis
-                      tick={{ fontSize: 10, fill: 'rgba(255,255,255,0.4)' }}
-                      tickLine={false}
-                      width={40}
-                    />
-                    <Tooltip
-                      contentStyle={{
-                        background: '#22223b',
-                        border: '1px solid #33334d',
-                        borderRadius: 8,
-                        fontSize: 12,
-                      }}
-                    />
-                    <ReferenceLine y={100} stroke="rgba(255,255,255,0.15)" strokeDasharray="5 5" />
-                    <Area type="monotone" dataKey="value" stroke="#10b981" fill="url(#trendGrad)" strokeWidth={2} />
-                    <Line type="monotone" dataKey="sentiment" stroke="#eab308" strokeWidth={1.5} dot={false} yAxisId={0} />
-                  </ComposedChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
-
           {/* Sector Performance */}
           <Card className="bg-card border-border">
             <CardHeader className="pb-2">
@@ -208,6 +229,33 @@ export function TrendAnalysisScreen() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Upcoming Earnings */}
+          {earningsData.length > 0 && (
+            <Card className="bg-card border-border">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base flex items-center gap-2"><Calendar className="w-4 h-4 text-primary" />Upcoming Earnings</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="max-h-64">
+                  <div className="space-y-2">
+                    {earningsData.slice(0, 10).map((e, i) => (
+                      <div key={i} className="flex items-center justify-between py-1.5 border-b border-border/50 last:border-0">
+                        <div className="flex items-center gap-3">
+                          <span className="text-sm font-semibold font-mono">{e.symbol}</span>
+                          <span className="text-xs text-muted-foreground">Q{e.quarter} {e.year}</span>
+                        </div>
+                        <div className="text-right text-xs">
+                          <div className="text-muted-foreground">{e.date}</div>
+                          <div>Est: ${e.estimate.toFixed(2)} {e.actual !== null && <span className={e.actual >= e.estimate ? 'text-gain' : 'text-loss'}> Actual: ${e.actual.toFixed(2)}</span>}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Cross-Asset Correlation */}
           <Card className="bg-card border-border">
@@ -364,6 +412,35 @@ export function TrendAnalysisScreen() {
 
         {/* Risk Assessment */}
         <TabsContent value="risk" className="space-y-4">
+          {/* Insider Sentiment Chart */}
+          {insiderData.length > 0 && (
+            <Card className="bg-card border-border">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <BarChart3 className="w-4 h-4 text-primary" />
+                  SPY Insider Sentiment (MSPR)
+                </CardTitle>
+                <CardDescription>Monthly Insider Sentiment Ratio — broad market proxy via SPY</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={200}>
+                  <BarChart data={insiderData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                    <XAxis dataKey={d => `${d.year}-${String(d.month).padStart(2, '0')}`} tick={{ fontSize: 9, fill: 'rgba(255,255,255,0.4)' }} tickLine={false} />
+                    <YAxis tick={{ fontSize: 10, fill: 'rgba(255,255,255,0.4)' }} tickLine={false} />
+                    <Tooltip contentStyle={{ background: '#22223b', border: '1px solid #33334d', borderRadius: 8, fontSize: 12 }} />
+                    <ReferenceLine y={0} stroke="rgba(255,255,255,0.2)" />
+                    <Bar dataKey="mspr" name="MSPR" radius={[2, 2, 0, 0]}>
+                      {insiderData.map((entry, index) => (
+                        <Cell key={index} fill={entry.mspr >= 0 ? '#10b981' : '#ef4444'} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          )}
+
           <Card className="bg-card border-border">
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
@@ -401,84 +478,46 @@ export function TrendAnalysisScreen() {
 
         {/* AI Report */}
         <TabsContent value="ai-report" className="space-y-4">
-          <Card className="bg-card border-primary/30">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Brain className="w-4 h-4 text-primary" />
-                AI-Generated Market Summary
-              </CardTitle>
-              <CardDescription>Comprehensive analysis synthesized from multiple data sources</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="p-4 rounded-lg bg-primary/5 border border-primary/15">
-                <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-primary" />
-                  Executive Summary
-                </h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  The market enters a transitional phase characterized by a narrowing breadth rally and growing
-                  divergence between mega-cap technology stocks and the broader market. While the S&P 500
-                  continues to make new highs, the equal-weight index lags by 4.2%, indicating concentration
-                  risk. The Fed&apos;s dovish pivot provides a supportive backdrop, but valuations in AI-related
-                  names demand selective positioning. Our composite risk score has risen to 58/100, suggesting
-                  heightened caution is warranted for new long positions.
-                </p>
-              </div>
-
-              <div className="p-4 rounded-lg bg-gain/5 border border-gain/15">
-                <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
-                  <Target className="w-4 h-4 text-gain" />
-                  Key Opportunities
-                </h3>
-                <ul className="text-sm text-muted-foreground leading-relaxed space-y-2">
-                  <li className="flex items-start gap-2">
-                    <ArrowUpRight className="w-3.5 h-3.5 text-gain mt-0.5 shrink-0" />
-                    <span>Healthcare sector rotation accelerating — biotech and pharma showing institutional
-                    accumulation patterns not seen since Q4 2023.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <ArrowUpRight className="w-3.5 h-3.5 text-gain mt-0.5 shrink-0" />
-                    <span>Small-cap value stocks presenting relative value opportunity as Russell 2000
-                    P/E discount to S&P 500 reaches 35%.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <ArrowUpRight className="w-3.5 h-3.5 text-gain mt-0.5 shrink-0" />
-                    <span>Treasury yields declining create favorable conditions for duration-sensitive
-                    sectors including utilities and REITs.</span>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="p-4 rounded-lg bg-loss/5 border border-loss/15">
-                <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
-                  <AlertTriangle className="w-4 h-4 text-loss" />
-                  Key Risks
-                </h3>
-                <ul className="text-sm text-muted-foreground leading-relaxed space-y-2">
-                  <li className="flex items-start gap-2">
-                    <ArrowDownRight className="w-3.5 h-3.5 text-loss mt-0.5 shrink-0" />
-                    <span>Geopolitical escalation in multiple theaters could trigger sudden risk-off rotation
-                    and volatility spike.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <ArrowDownRight className="w-3.5 h-3.5 text-loss mt-0.5 shrink-0" />
-                    <span>US election uncertainty expected to increase market volatility starting September,
-                    with options markets pricing elevated VIX levels.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <ArrowDownRight className="w-3.5 h-3.5 text-loss mt-0.5 shrink-0" />
-                    <span>Corporate earnings growth deceleration in Q3 could challenge current multiple
-                    expansion narrative.</span>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2">
-                <Brain className="w-3.5 h-3.5 text-primary" />
-                <span>Generated by InvestIQ AI Agent • Model: GPT-4 Turbo • Confidence: 84% • Data points analyzed: 12,847</span>
-              </div>
-            </CardContent>
-          </Card>
+          {!aiReport && !reportLoading && (
+            <Card className="bg-card border-primary/30">
+              <CardContent className="p-8 text-center space-y-4">
+                <Brain className="w-10 h-10 text-primary mx-auto" />
+                <p className="text-sm text-muted-foreground">Generate a comprehensive AI analysis of current market conditions using the latest news.</p>
+                <Button onClick={handleGenerateReport} className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                  <Sparkles className="w-4 h-4 mr-2" />Generate AI Report
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+          {reportLoading && (
+            <Card className="bg-card border-primary/30">
+              <CardContent className="p-8 text-center space-y-3">
+                <Loader2 className="w-8 h-8 text-primary mx-auto animate-spin" />
+                <p className="text-sm text-muted-foreground">Analyzing market data and generating report...</p>
+              </CardContent>
+            </Card>
+          )}
+          {aiReport && !reportLoading && (
+            <Card className="bg-card border-primary/30">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2"><Brain className="w-4 h-4 text-primary" />AI-Generated Market Analysis</CardTitle>
+                <CardDescription>Analysis based on {newsForAnalysis.length} news articles</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="prose prose-invert prose-sm max-w-none">
+                  {aiReport.split('\n').map((line, i) => {
+                    if (line.startsWith('## ')) return <h3 key={i} className="text-sm font-semibold mt-4 mb-2 flex items-center gap-2">{line.replace('## ', '')}</h3>
+                    if (line.startsWith('- ')) return <li key={i} className="text-sm text-muted-foreground ml-4 list-disc">{line.replace('- ', '')}</li>
+                    return <p key={i} className="text-sm text-muted-foreground leading-relaxed">{line}</p>
+                  })}
+                </div>
+                <div className="flex items-center gap-2 mt-4">
+                  <Button variant="outline" size="sm" onClick={() => setAiReport(null)} className="border-primary/30 text-primary">Regenerate</Button>
+                  <span className="text-xs text-muted-foreground">Sentiment: {aiReportSentiment}</span>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
       </Tabs>
     </div>

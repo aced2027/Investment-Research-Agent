@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -24,11 +24,14 @@ import {
   Loader2,
   Rss,
   Brain,
+  AlertTriangle,
 } from 'lucide-react'
-import { newsItems, type NewsItem } from '@/lib/market-data'
+import { getMarketNews, getCompanyNews, summarizeArticles, type NewsItem } from '@/services/news-service'
 import { cn } from '@/lib/utils'
 
-const categories = ['All', 'Macro', 'Earnings', 'Technology', 'Commodities', 'Global', 'Strategy']
+const categories = ['All', 'General', 'Technology', 'Finance', 'Healthcare', 'Consumer', 'Energy']
+
+type NewsItemWithSummary = NewsItem & { aiSummary?: string }
 
 function SentimentIcon({ sentiment }: { sentiment: NewsItem['sentiment'] }) {
   switch (sentiment) {
@@ -39,7 +42,7 @@ function SentimentIcon({ sentiment }: { sentiment: NewsItem['sentiment'] }) {
 }
 
 function NewsCard({ item, onSummarize, isSummarizing, summarizedId }: {
-  item: NewsItem
+  item: NewsItemWithSummary
   onSummarize: (id: string) => void
   isSummarizing: boolean
   summarizedId: string | null
@@ -77,23 +80,37 @@ function NewsCard({ item, onSummarize, isSummarizing, summarizedId }: {
           </span>
         </div>
 
-        {/* Title & Source */}
-        <div>
-          <h3 className="text-sm font-semibold leading-snug group-hover:text-primary transition-colors">
-            {item.title}
-          </h3>
-          <p className="text-[11px] text-muted-foreground mt-1">Source: {item.source}</p>
+        {/* Title, Source & Image */}
+        <div className="flex items-start gap-3">
+          <div className="flex-1 min-w-0">
+            <h3 className="text-sm font-semibold leading-snug group-hover:text-primary transition-colors">
+              {item.title}
+            </h3>
+            <p className="text-[11px] text-muted-foreground mt-1">Source: {item.source}</p>
+          </div>
+          {item.image && (
+            <a href={item.url} target="_blank" rel="noopener noreferrer" className="shrink-0">
+              <img
+                src={item.image}
+                alt=""
+                className="w-16 h-16 object-cover rounded-md border border-border"
+                loading="lazy"
+              />
+            </a>
+          )}
         </div>
 
         {/* Summary */}
         <p className="text-sm text-muted-foreground leading-relaxed">{item.summary}</p>
 
         {/* Tickers */}
-        <div className="flex items-center gap-2 flex-wrap">
-          {item.tickers.map((t) => (
-            <Badge key={t} variant="secondary" className="text-[11px] font-mono">{t}</Badge>
-          ))}
-        </div>
+        {item.tickers.length > 0 && (
+          <div className="flex items-center gap-2 flex-wrap">
+            {item.tickers.map((t) => (
+              <Badge key={t} variant="secondary" className="text-[11px] font-mono">{t}</Badge>
+            ))}
+          </div>
+        )}
 
         {/* AI Summary Section */}
         {isExpanded && item.aiSummary && (
@@ -150,23 +167,179 @@ export function NewsFeedScreen() {
   const [activeCategory, setActiveCategory] = useState('All')
   const [summarizedId, setSummarizedId] = useState<string | null>(null)
   const [isSummarizing, setIsSummarizing] = useState(false)
+  const [allNews, setAllNews] = useState<NewsItem[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [aiSummaries, setAiSummaries] = useState<Record<string, string>>({})
+
+  useEffect(() => {
+    async function loadNews() {
+      try {
+        setLoading(true)
+        setError(null)
+        const marketNews = await getMarketNews('general')
+        const companyNews = await getCompanyNews('AAPL')
+        // Merge and deduplicate by id
+        const merged = [...marketNews, ...companyNews]
+        const seen = new Set<string>()
+        const unique = merged.filter(n => {
+          if (seen.has(n.id)) return false
+          seen.add(n.id)
+          return true
+        })
+        setAllNews(unique)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load news')
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadNews()
+  }, [])
 
   const filteredNews = useMemo(() => {
-    return newsItems.filter((item) => {
+    return allNews.filter((item) => {
       const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.tickers.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase()))
       const matchesCategory = activeCategory === 'All' || item.category === activeCategory
       return matchesSearch && matchesCategory
     })
-  }, [searchQuery, activeCategory])
+  }, [allNews, searchQuery, activeCategory])
 
-  const handleSummarize = async (id: string) => {
+  const handleSummarize = async (newsId: string) => {
+    const item = allNews.find(n => n.id === newsId)
+    if (!item) return
+
     setIsSummarizing(true)
-    // Simulate AI processing delay
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-    setSummarizedId(id)
-    setIsSummarizing(false)
+    try {
+      const result = await summarizeArticles([{
+        headline: item.title,
+        summary: item.summary,
+        source: item.source,
+        category: item.category,
+      }])
+      // Store the AI analysis on the item
+      setAiSummaries(prev => ({ ...prev, [newsId]: result.analysis }))
+      setSummarizedId(newsId)
+    } catch (err) {
+      setAiSummaries(prev => ({ ...prev, [newsId]: 'AI analysis is currently unavailable. Please try again later.' }))
+      setSummarizedId(newsId)
+    } finally {
+      setIsSummarizing(false)
+    }
+  }
+
+  // Loading skeleton state
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-10 w-72" />
+        <Card className="bg-card border-border">
+          <CardContent className="p-4 space-y-3">
+            <Skeleton className="h-10 w-full" />
+            <div className="flex gap-2">
+              {[...Array(7)].map((_, i) => <Skeleton key={i} className="h-7 w-16" />)}
+            </div>
+          </CardContent>
+        </Card>
+        <div className="space-y-3">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i} className="bg-card border-border">
+              <CardContent className="p-5 space-y-3">
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-2/3" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
+          <Rss className="w-8 h-8 text-primary" />
+          News & Summarizer
+        </h1>
+        <Card className="bg-loss/5 border-loss/20">
+          <CardContent className="p-8 text-center space-y-3">
+            <AlertTriangle className="w-8 h-8 text-loss mx-auto" />
+            <p className="text-sm text-muted-foreground">{error}</p>
+            <Button onClick={() => window.location.reload()} variant="outline" className="border-primary/30 text-primary">Retry</Button>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  // Empty state
+  if (filteredNews.length === 0 && !loading) {
+    return (
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
+              <Rss className="w-8 h-8 text-primary" />
+              News & Summarizer
+            </h1>
+            <p className="text-muted-foreground mt-1">
+              AI-powered market news analysis and summarization
+            </p>
+          </div>
+          <Badge className="bg-primary/15 text-primary border-primary/20 self-start text-xs px-3 py-1">
+            <Sparkles className="w-3 h-3 mr-1" />
+            AI Enhanced
+          </Badge>
+        </div>
+
+        {/* Filters */}
+        <Card className="bg-card border-border">
+          <CardContent className="p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Search className="w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search news, tickers, or topics..."
+                className="bg-muted/50 border-border focus:border-primary/50"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <Filter className="w-4 h-4 text-muted-foreground" />
+              {categories.map((cat) => (
+                <Button
+                  key={cat}
+                  variant={activeCategory === cat ? 'default' : 'outline'}
+                  size="sm"
+                  className={cn(
+                    'h-7 text-xs',
+                    activeCategory === cat
+                      ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                      : 'border-border text-muted-foreground hover:text-foreground'
+                  )}
+                  onClick={() => setActiveCategory(cat)}
+                >
+                  {cat}
+                </Button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-card border-border">
+          <CardContent className="p-8 text-center">
+            <Search className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+            <p className="text-muted-foreground">No news articles match your search criteria. Try a different filter or search term.</p>
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
   return (
@@ -224,24 +397,15 @@ export function NewsFeedScreen() {
 
       {/* News Feed */}
       <div className="space-y-3">
-        {filteredNews.length === 0 ? (
-          <Card className="bg-card border-border">
-            <CardContent className="p-8 text-center">
-              <Search className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
-              <p className="text-muted-foreground">No news articles match your search criteria.</p>
-            </CardContent>
-          </Card>
-        ) : (
-          filteredNews.map((item) => (
-            <NewsCard
-              key={item.id}
-              item={item}
-              onSummarize={handleSummarize}
-              isSummarizing={isSummarizing}
-              summarizedId={summarizedId}
-            />
-          ))
-        )}
+        {filteredNews.map((item) => (
+          <NewsCard
+            key={item.id}
+            item={{ ...item, aiSummary: aiSummaries[item.id] }}
+            onSummarize={handleSummarize}
+            isSummarizing={isSummarizing}
+            summarizedId={summarizedId}
+          />
+        ))}
       </div>
 
       {/* AI Processing Stats */}
