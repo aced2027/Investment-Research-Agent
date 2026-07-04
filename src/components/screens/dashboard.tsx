@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect, useMemo } from 'react'
+import { useState, useRef, useEffect, useMemo, useSyncExternalStore } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -85,12 +85,17 @@ function MiniSparkline({ data, positive }: { data: number[]; positive: boolean }
 }
 
 function AIChatPanel() {
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  )
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'welcome',
       role: 'assistant',
       content: 'Welcome to InvestIQ AI Research Agent. I can help you analyze market trends, research specific tickers, assess risk factors, and summarize news. What would you like to explore today?',
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      timestamp: '',
     },
   ])
   const [input, setInput] = useState('')
@@ -169,7 +174,7 @@ function AIChatPanel() {
                 )}
               >
                 <p className="whitespace-pre-wrap">{msg.content}</p>
-                <span className="text-[10px] opacity-50 mt-1 block">{msg.timestamp}</span>
+                <span className="text-[10px] opacity-50 mt-1 block">{mounted && msg.timestamp ? msg.timestamp : '\u00A0'}</span>
               </div>
             </div>
           ))}
