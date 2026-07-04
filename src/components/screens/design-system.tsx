@@ -18,7 +18,6 @@ import {
   Layers,
   Type,
   Move,
-  Grid3X3,
   ToggleLeft,
   MessageSquare,
   CheckCircle2,
@@ -31,21 +30,6 @@ import {
   LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Area, AreaChart, PieChart, Pie, Cell,
 } from 'recharts'
-
-const colorTokens = [
-  { name: 'Primary (Emerald)', var: '--color-primary', class: 'bg-primary', hex: '#10b981' },
-  { name: 'Gain (Green)', var: '--color-gain', class: 'bg-gain', hex: '#10b981' },
-  { name: 'Loss (Red)', var: '--color-loss', class: 'bg-loss', hex: '#ef4444' },
-  { name: 'Background', var: '--color-background', class: 'bg-background', hex: '#1a1a2e' },
-  { name: 'Card Surface', var: '--color-card', class: 'bg-card', hex: '#22223b' },
-  { name: 'Muted', var: '--color-muted', class: 'bg-muted', hex: '#2a2a42' },
-  { name: 'Border', var: '--color-border', class: 'bg-border', hex: '#33334d' },
-  { name: 'Chart 1', var: '--color-chart-1', class: 'bg-chart-1', hex: '#10b981' },
-  { name: 'Chart 2', var: '--color-chart-2', class: 'bg-chart-2', hex: '#ef4444' },
-  { name: 'Chart 3', var: '--color-chart-3', class: 'bg-chart-3', hex: '#eab308' },
-  { name: 'Chart 4', var: '--color-chart-4', class: 'bg-chart-4', hex: '#8b5cf6' },
-  { name: 'Chart 5', var: '--color-chart-5', class: 'bg-chart-5', hex: '#ec4899' },
-]
 
 const typographyScale = [
   { label: 'Display', size: '3rem', weight: 700, sample: 'Market Intelligence' },
@@ -187,30 +171,6 @@ export function DesignSystemScreen() {
 
         {/* Colors */}
         <TabsContent value="colors" className="space-y-6">
-          <Card className="bg-card border-border">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Grid3X3 className="w-5 h-5 text-primary" />
-                Color Tokens
-              </CardTitle>
-              <CardDescription>Core color palette used across the application</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-                {colorTokens.map((color) => (
-                  <div key={color.var} className="space-y-2">
-                    <div className={`${color.class} h-16 rounded-lg border border-border/50`} />
-                    <div>
-                      <div className="text-xs font-medium">{color.name}</div>
-                      <div className="text-[11px] text-muted-foreground font-mono">{color.var}</div>
-                      <div className="text-[11px] text-muted-foreground font-mono">{color.hex}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
           <Card className="bg-card border-border">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center gap-2">
