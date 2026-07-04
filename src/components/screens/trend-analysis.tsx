@@ -28,19 +28,32 @@ import {
 } from 'recharts'
 
 const trendData = generateTrendData(60)
+
+// Deterministic PRNG for client-safe static data (avoids hydration mismatch)
+function mulberry32(seed: number) {
+  let a = seed | 0
+  return function () {
+    a = (a + 0x6d2b79f5) | 0
+    let t = Math.imul(a ^ (a >>> 15), 1 | a)
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
+const sr = mulberry32(99)
+
 const sentimentData = Array.from({ length: 30 }, (_, i) => ({
   date: `Day ${i + 1}`,
-  bullish: Math.round(30 + Math.random() * 40),
-  bearish: Math.round(10 + Math.random() * 25),
-  neutral: Math.round(15 + Math.random() * 20),
+  bullish: Math.round(30 + sr() * 40),
+  bearish: Math.round(10 + sr() * 25),
+  neutral: Math.round(15 + sr() * 20),
 }))
 
 const correlationData = Array.from({ length: 20 }, (_, i) => ({
   date: `W${i + 1}`,
-  sp500: Math.round((100 + Math.sin(i * 0.3) * 15 + Math.random() * 5) * 100) / 100,
-  bonds: Math.round((100 - Math.sin(i * 0.3) * 8 + Math.random() * 3) * 100) / 100,
-  gold: Math.round((100 + Math.cos(i * 0.25) * 10 + Math.random() * 4) * 100) / 100,
-  vix: Math.round((20 + Math.sin(i * 0.5) * 10 + Math.random() * 3) * 100) / 100,
+  sp500: Math.round((100 + Math.sin(i * 0.3) * 15 + sr() * 5) * 100) / 100,
+  bonds: Math.round((100 - Math.sin(i * 0.3) * 8 + sr() * 3) * 100) / 100,
+  gold: Math.round((100 + Math.cos(i * 0.25) * 10 + sr() * 4) * 100) / 100,
+  vix: Math.round((20 + Math.sin(i * 0.5) * 10 + sr() * 3) * 100) / 100,
 }))
 
 const riskMetrics = [

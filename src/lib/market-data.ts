@@ -1,5 +1,17 @@
 // Mock market data for the Investment Research Agent
 
+// Deterministic PRNG (mulberry32) — eliminates hydration mismatches from Math.random()
+function mulberry32(seed: number) {
+  let a = seed | 0
+  return function () {
+    a = (a + 0x6d2b79f5) | 0
+    let t = Math.imul(a ^ (a >>> 15), 1 | a)
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
+const seededRandom = mulberry32(42)
+
 export interface NewsItem {
   id: string
   title: string
@@ -132,18 +144,18 @@ function generatePriceHistory(basePrice: number, days: number, volatility: numbe
   for (let i = 0; i < days; i++) {
     const date = new Date()
     date.setDate(date.getDate() - (days - i))
-    const change = (Math.random() - 0.48) * volatility
+    const change = (seededRandom() - 0.48) * volatility
     const open = price
     const close = price + change
-    const high = Math.max(open, close) + Math.random() * volatility * 0.5
-    const low = Math.min(open, close) - Math.random() * volatility * 0.5
+    const high = Math.max(open, close) + seededRandom() * volatility * 0.5
+    const low = Math.min(open, close) - seededRandom() * volatility * 0.5
     history.push({
       date: date.toISOString().split('T')[0],
       open: Math.round(open * 100) / 100,
       high: Math.round(high * 100) / 100,
       low: Math.round(low * 100) / 100,
       close: Math.round(close * 100) / 100,
-      volume: Math.round(15000000 + Math.random() * 35000000),
+      volume: Math.round(15000000 + seededRandom() * 35000000),
     })
     price = close
   }
@@ -300,12 +312,12 @@ export function generateTrendData(days: number): TrendPoint[] {
   for (let i = 0; i < days; i++) {
     const date = new Date()
     date.setDate(date.getDate() - (days - i))
-    value += (Math.random() - 0.47) * 2
+    value += (seededRandom() - 0.47) * 2
     data.push({
       date: date.toISOString().split('T')[0],
       value: Math.round(value * 100) / 100,
-      sentiment: Math.round((Math.random() * 100 - 20) * 100) / 100,
-      volume: Math.round(50000000 + Math.random() * 100000000),
+      sentiment: Math.round((seededRandom() * 100 - 20) * 100) / 100,
+      volume: Math.round(50000000 + seededRandom() * 100000000),
     })
   }
   return data
