@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { finnhubClient, FinnhubError } from '@/lib/finnhub-client'
+import { FinnhubError } from '@/lib/finnhub-types'
+import { finnFetch } from '@/lib/api-helper'
 import { logger } from '@/lib/logger'
+import { CACHE_TTL } from '@/lib/cache'
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
@@ -8,26 +10,32 @@ export async function GET(request: NextRequest) {
   const resolution = searchParams.get('resolution') || 'D'
 
   if (!symbol) {
-    return NextResponse.json(
-      { error: 'Missing required query parameter: symbol', status: 400 },
-      { status: 400 }
-    )
+    return NextResponse.json({ error: 'Missing required query parameter: symbol', status: 400 }, { status: 400 })
   }
 
   try {
     logger.info('api/candle', `Fetching candle data for ${symbol} (${resolution})`)
-    const data = await finnhubClient.getCandles(
+    const data = await finnFetch<Record<string, unknown>>('stock/candle', {
       symbol,
-      resolution as 'D' | 'W' | 'M' | '5' | '15' | '60'
-    )
+      resolution,
+      from: String(Math.floor(Date.now() / 1000) - 90 * 24 * 3600),
+      to: String(Math.floor(Date.now() / 1000)),
+    }, CACHE_TTL.CANDLE)
 
-    const candles = data.t.map((timestamp, i) => ({
+    const t = data.t as number[]
+    const o = data.o as number[]
+    const h = data.h as number[]
+    const l = data.l as number[]
+    const c = data.c as number[]
+    const v = data.v as number[]
+
+    const candles = t.map((timestamp, i) => ({
       date: new Date(timestamp * 1000).toISOString().split('T')[0],
-      open: data.o[i],
-      high: data.h[i],
-      low: data.l[i],
-      close: data.c[i],
-      volume: data.v[i],
+      open: o[i],
+      high: h[i],
+      low: l[i],
+      close: c[i],
+      volume: v[i],
     }))
 
     return NextResponse.json({ candles })

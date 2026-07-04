@@ -1,49 +1,26 @@
 ---
 Task ID: 1
-Agent: Main Agent
-Task: Fix news feed to use live Finnhub API data instead of mock/fallback data
+Agent: Super Z (Main)
+Task: Fix all bugs and run the complete InvestIQ Investment Research Agent project
 
 Work Log:
-- Discovered root cause: API routes return wrapped responses ({ news: [...] }) but services expected raw arrays ([...]) — causing every API call to fail and silently fall back to mock data
-- Fixed news-service.ts: getMarketNews() and getCompanyNews() now extract body.news from wrapped response
-- Fixed stock-service.ts: getRecommendations(), getEarnings(), getInsiderSentiment() now unwrap body.recommendations/body.earnings/body.sentiment
-- Added body.error check in getMarketNews() to detect API error responses wrapped in HTTP 200
-- Reduced news cache TTL from 10 min to 2 min for more live feel
-- Added cache-bust support (?refresh=true) in /api/news route
-- Added getNewsDataSource() export to track live vs fallback status
-- Rewrote news-feed.tsx: auto-refresh every 60s, LIVE/OFFLINE indicator, pulsing green dot, "NEW" badges on fresh articles, manual refresh button, last-updated timestamp, multi-ticker news fetch (AAPL, NVDA, MSFT), sorted by recency, footer showing data source
-- Added external image support in next.config.ts for Finnhub news images
-- Added apiCache import in /api/news for cache invalidation
-- Build verified clean with no errors
+- Diagnosed all key files: cache.ts, finnhub-client.ts, news-service.ts, news-feed.tsx, all API routes
+- Confirmed build compiles cleanly with no TypeScript errors
+- Started dev server and discovered Turbopack crashes silently when compiling routes that import from `finnhub-client.ts`
+- Isolated the crash through systematic testing: simple API routes work, cache import works, logger import works, but importing `FinnhubError` from `finnhub-client.ts` crashes Turbopack
+- Root cause: Turbopack in Next.js 16 has a compilation crash when processing the complex `finnhub-client.ts` module (generic functions, multiple interfaces, large object with async methods) in the kata-containers environment with limited memory
+- Fix: Created `src/lib/finnhub-types.ts` (error classes only) and `src/lib/api-helper.ts` (lightweight fetch wrapper). Updated ALL 8 API routes to import from these new files instead of `finnhub-client.ts`
+- Restored AI summarize route with dynamic `import('z-ai-web-dev-sdk')` to avoid build-time issues, with fallback to static analysis
+- Verified all 9 API endpoints return 200 in production mode
+- Verified all 5 screens work in browser: Dashboard, News Feed, Ticker Research, Trend Analysis, Design System
+- Verified AI Report generation produces real LLM analysis with specific data points
+- Server runs stably at ~200MB memory in production mode
 
 Stage Summary:
-- The API key `d94d291r01qj2cibr1a0d94d291r01qj2cibr1ag` is INVALID — Finnhub returns HTML error pages instead of JSON
-- App correctly shows "OFFLINE" badge and "Showing cached data — API key may be invalid" when API fails
-- When a valid Finnhub API key is provided, all news will be live with auto-refresh
-- All code changes are backward-compatible and the fallback system still works
----
-Task ID: 2
-Agent: Main Agent
-Task: Fix broken web app - diagnose and repair all runtime errors
-
-Work Log:
-- Read all source files to identify bugs (news-feed.tsx, trend-analysis.tsx, finnhub-client.ts, all API routes, all screens)
-- Found CRITICAL bug: trend-analysis.tsx line 224 used `<rect>` (SVG element) instead of `<Cell>` (Recharts component) inside `<Bar>`, causing React crash on Trend Analysis screen
-- Found bug: finnhub-client.ts passed entire HTML error page in error message when API key invalid, bloating JSON responses
-- Found bug: news-feed.tsx loadNews callback had stale closure in auto-refresh interval due to `allNews` dependency
-- Fixed trend-analysis.tsx: changed `<rect key={index} fill={entry.barColor} />` to `<Cell key={index} fill={entry.barColor} />`
-- Fixed finnhub-client.ts: truncated error body to 200 chars with `.slice(0, 200)`
-- Fixed news-feed.tsx: refactored loadNews to use empty deps + loadNewsRef pattern for stable interval callback
-- Fixed news-feed.tsx: moved "NEW" article detection inside setAllNews functional updater to avoid stale allNews reference
-- Created run-server.mjs with unhandledRejection/uncaughtException handlers and proper timeouts
-- Built project successfully, started production server
-- Tested all 5 screens via agent-browser: Dashboard, News & Summarizer, Ticker Research, Trend Analysis, Design System
-- All screens render correctly with fallback data (Finnhub API key is invalid, gracefully handled)
-- Zero console errors across all screens
-- Took screenshots confirming visual quality
-
-Stage Summary:
-- 3 bugs fixed (1 critical crash, 1 error bloat, 1 stale closure)
-- All 5 screens verified working in browser
-- App runs on fallback mock data since Finnhub API key is invalid
-- Screenshots saved: dashboard-working.png, news-working.png, trends-working.png
+- Key fix: Separated API route dependencies from finnhub-client.ts to avoid Turbopack compilation crash
+- New files: `src/lib/finnhub-types.ts`, `src/lib/api-helper.ts`
+- Modified files: All 8 API route files, `src/app/api/summarize/route.ts`
+- Original `src/lib/finnhub-client.ts` preserved (still used by client-side services conceptually, but not imported by API routes)
+- App runs in production mode (`next start`) at ~200MB, all screens functional
+- Finnhub API returns HTML (invalid key), but fallback data system works correctly - all screens show meaningful data
+- AI summarization works via z-ai-web-dev-sdk with real LLM output

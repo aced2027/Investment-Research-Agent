@@ -1,0 +1,250 @@
+▲ Next.js 16.1.3 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://21.0.6.41:3000
+- Environments: .env
+
+✓ Starting...
+✓ Ready in 819ms
+○ Compiling / ...
+ GET / 200 in 5.1s (compile: 4.7s, render: 337ms)
+[2026-07-04T12:43:07.805Z] [INFO] [api/quote] Fetching quote for IWM
+[2026-07-04T12:43:07.806Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"IWM"}
+[2026-07-04T12:43:07.813Z] [INFO] [api/quote] Fetching quote for DIA
+[2026-07-04T12:43:07.814Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"DIA"}
+[2026-07-04T12:43:07.819Z] [INFO] [api/quote] Fetching quote for SPY
+[2026-07-04T12:43:07.819Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"SPY"}
+[2026-07-04T12:43:07.824Z] [INFO] [api/quote] Fetching quote for QQQ
+[2026-07-04T12:43:07.825Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"QQQ"}
+[2026-07-04T12:43:07.832Z] [INFO] [api/quote] Fetching quote for AAPL
+[2026-07-04T12:43:07.832Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"AAPL"}
+[2026-07-04T12:43:07.851Z] [INFO] [api/quote] Fetching quote for NVDA
+[2026-07-04T12:43:07.852Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"NVDA"}
+[2026-07-04T12:43:08.348Z] [ERROR] [finnhub] GET quote — failed {"durationMs":528,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:08.348Z] [ERROR] [api/quote] Failed to fetch quote for SPY {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=SPY 200 in 669ms (compile: 133ms, render: 536ms)
+[2026-07-04T12:43:08.358Z] [ERROR] [finnhub] GET quote — failed {"durationMs":544,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:08.358Z] [ERROR] [api/quote] Failed to fetch quote for DIA {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=DIA 200 in 633ms (compile: 84ms, render: 549ms)
+[2026-07-04T12:43:08.362Z] [ERROR] [finnhub] GET quote — failed {"durationMs":537,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:08.362Z] [ERROR] [api/quote] Failed to fetch quote for QQQ {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=QQQ 200 in 695ms (compile: 153ms, render: 542ms)
+[2026-07-04T12:43:08.366Z] [ERROR] [finnhub] GET quote — failed {"durationMs":533,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:08.366Z] [ERROR] [api/quote] Failed to fetch quote for AAPL {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=AAPL 200 in 540ms (compile: 1847µs, render: 538ms)
+[2026-07-04T12:43:08.369Z] [ERROR] [finnhub] GET quote — failed {"durationMs":562,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:08.369Z] [ERROR] [api/quote] Failed to fetch quote for IWM {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=IWM 200 in 637ms (compile: 62ms, render: 574ms)
+[2026-07-04T12:43:08.389Z] [ERROR] [finnhub] GET quote — failed {"durationMs":538,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:08.390Z] [ERROR] [api/quote] Failed to fetch quote for NVDA {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=NVDA 200 in 547ms (compile: 5ms, render: 542ms)
+[2026-07-04T12:43:08.475Z] [INFO] [api/quote] Fetching quote for MSFT
+[2026-07-04T12:43:08.476Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"MSFT"}
+[2026-07-04T12:43:08.490Z] [INFO] [api/quote] Fetching quote for GOOGL
+[2026-07-04T12:43:08.490Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"GOOGL"}
+[2026-07-04T12:43:08.505Z] [INFO] [api/quote] Fetching quote for TSLA
+[2026-07-04T12:43:08.505Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"TSLA"}
+[2026-07-04T12:43:08.515Z] [INFO] [api/quote] Fetching quote for AMZN
+[2026-07-04T12:43:08.515Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"AMZN"}
+[2026-07-04T12:43:08.520Z] [INFO] [api/quote] Fetching quote for JPM
+[2026-07-04T12:43:08.521Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"JPM"}
+[2026-07-04T12:43:08.562Z] [INFO] [api/quote] Fetching quote for XOM
+[2026-07-04T12:43:08.564Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"XOM"}
+[2026-07-04T12:43:08.974Z] [ERROR] [finnhub] GET quote — failed {"durationMs":499,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:08.975Z] [ERROR] [api/quote] Failed to fetch quote for MSFT {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=MSFT 200 in 505ms (compile: 2ms, render: 503ms)
+[2026-07-04T12:43:09.006Z] [ERROR] [finnhub] GET quote — failed {"durationMs":501,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:09.007Z] [ERROR] [api/quote] Failed to fetch quote for TSLA {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=TSLA 200 in 507ms (compile: 1842µs, render: 506ms)
+[2026-07-04T12:43:09.010Z] [ERROR] [finnhub] GET quote — failed {"durationMs":520,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:09.011Z] [ERROR] [api/quote] Failed to fetch quote for GOOGL {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=GOOGL 200 in 526ms (compile: 1910µs, render: 524ms)
+[2026-07-04T12:43:09.017Z] [ERROR] [finnhub] GET quote — failed {"durationMs":502,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:09.017Z] [ERROR] [api/quote] Failed to fetch quote for AMZN {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=AMZN 200 in 508ms (compile: 1780µs, render: 506ms)
+[2026-07-04T12:43:09.028Z] [ERROR] [finnhub] GET quote — failed {"durationMs":507,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:09.028Z] [ERROR] [api/quote] Failed to fetch quote for JPM {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=JPM 200 in 513ms (compile: 1565µs, render: 511ms)
+[2026-07-04T12:43:09.080Z] [ERROR] [finnhub] GET quote — failed {"durationMs":516,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:09.081Z] [ERROR] [api/quote] Failed to fetch quote for XOM {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=XOM 200 in 524ms (compile: 1661µs, render: 522ms)
+[2026-07-04T12:43:09.118Z] [INFO] [api/quote] Fetching quote for META
+[2026-07-04T12:43:09.118Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"META"}
+[2026-07-04T12:43:09.126Z] [INFO] [api/quote] Fetching quote for V
+[2026-07-04T12:43:09.126Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"V"}
+[2026-07-04T12:43:09.133Z] [INFO] [api/quote] Fetching quote for JNJ
+[2026-07-04T12:43:09.133Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"JNJ"}
+[2026-07-04T12:43:09.144Z] [INFO] [api/quote] Fetching quote for PG
+[2026-07-04T12:43:09.144Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"PG"}
+[2026-07-04T12:43:09.152Z] [INFO] [api/quote] Fetching quote for WMT
+[2026-07-04T12:43:09.153Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"WMT"}
+[2026-07-04T12:43:09.248Z] [INFO] [api/quote] Fetching quote for UNH
+[2026-07-04T12:43:09.248Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"UNH"}
+[2026-07-04T12:43:09.625Z] [ERROR] [finnhub] GET quote — failed {"durationMs":492,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:09.626Z] [ERROR] [api/quote] Failed to fetch quote for JNJ {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=JNJ 200 in 499ms (compile: 1986µs, render: 497ms)
+[2026-07-04T12:43:09.632Z] [ERROR] [finnhub] GET quote — failed {"durationMs":506,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:09.633Z] [ERROR] [api/quote] Failed to fetch quote for V {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=V 200 in 514ms (compile: 2ms, render: 512ms)
+[2026-07-04T12:43:09.637Z] [ERROR] [finnhub] GET quote — failed {"durationMs":518,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:09.638Z] [ERROR] [api/quote] Failed to fetch quote for META {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=META 200 in 527ms (compile: 3ms, render: 525ms)
+[2026-07-04T12:43:09.641Z] [ERROR] [finnhub] GET quote — failed {"durationMs":497,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:09.641Z] [ERROR] [api/quote] Failed to fetch quote for PG {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=PG 200 in 504ms (compile: 1891µs, render: 502ms)
+[2026-07-04T12:43:09.646Z] [ERROR] [finnhub] GET quote — failed {"durationMs":493,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:09.647Z] [ERROR] [api/quote] Failed to fetch quote for WMT {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=WMT 200 in 500ms (compile: 2ms, render: 498ms)
+[2026-07-04T12:43:09.738Z] [INFO] [api/quote] Fetching quote for HD
+[2026-07-04T12:43:09.738Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"HD"}
+[2026-07-04T12:43:09.756Z] [ERROR] [finnhub] GET quote — failed {"durationMs":507,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:09.757Z] [ERROR] [api/quote] Failed to fetch quote for UNH {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=UNH 200 in 518ms (compile: 3ms, render: 515ms)
+[2026-07-04T12:43:09.835Z] [INFO] [api/news] Fetching market news for category: general
+[2026-07-04T12:43:09.835Z] [DEBUG] [cache] MISS finnhub:news:{"category":"general"}
+[2026-07-04T12:43:10.241Z] [ERROR] [finnhub] GET quote — failed {"durationMs":503,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:10.242Z] [ERROR] [api/quote] Failed to fetch quote for HD {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=HD 200 in 512ms (compile: 3ms, render: 510ms)
+[2026-07-04T12:43:10.337Z] [ERROR] [finnhub] GET news — failed {"durationMs":501,"error":"FinnhubError: Finnhub news [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:10.337Z] [ERROR] [api/news] Failed to fetch market news {"error":"Finnhub news [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/news?category=general 200 in 589ms (compile: 81ms, render: 508ms)
+[2026-07-04T12:43:10.467Z] [INFO] [api/quote] Fetching quote for NVDA
+[2026-07-04T12:43:10.467Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"NVDA"}
+[2026-07-04T12:43:10.970Z] [ERROR] [finnhub] GET quote — failed {"durationMs":503,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:10.971Z] [ERROR] [api/quote] Failed to fetch quote for NVDA {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=NVDA 200 in 513ms (compile: 4ms, render: 508ms)
+[2026-07-04T12:43:11.142Z] [INFO] [api/recommendation] Fetching recommendations for NVDA
+[2026-07-04T12:43:11.143Z] [DEBUG] [cache] MISS finnhub:stock/recommendation:{"symbol":"NVDA"}
+[2026-07-04T12:43:11.631Z] [ERROR] [finnhub] GET stock/recommendation — failed {"durationMs":488,"error":"FinnhubError: Finnhub stock/recommendation [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:11.632Z] [ERROR] [api/recommendation] Failed to fetch recommendations for NVDA {"error":"Finnhub stock/recommendation [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/recommendation?symbol=NVDA 200 in 551ms (compile: 57ms, render: 495ms)
+[2026-07-04T12:43:11.812Z] [INFO] [api/insider-sentiment] Fetching insider sentiment for NVDA
+[2026-07-04T12:43:11.812Z] [DEBUG] [cache] MISS finnhub:stock/insider-sentiment:{"symbol":"NVDA","from":"2026-01-04","to":"2026-07-04"}
+[2026-07-04T12:43:12.318Z] [ERROR] [finnhub] GET stock/insider-sentiment — failed {"durationMs":506,"error":"FinnhubError: Finnhub stock/insider-sentiment [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:12.319Z] [ERROR] [api/insider-sentiment] Failed to fetch insider sentiment for NVDA {"error":"Finnhub stock/insider-sentiment [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/insider-sentiment?symbol=NVDA 200 in 562ms (compile: 50ms, render: 513ms)
+[2026-07-04T12:43:38.494Z] [INFO] [api/quote] Fetching quote for QQQ
+[2026-07-04T12:43:38.494Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"QQQ"}
+[2026-07-04T12:43:38.504Z] [INFO] [api/quote] Fetching quote for NVDA
+[2026-07-04T12:43:38.504Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"NVDA"}
+[2026-07-04T12:43:38.514Z] [INFO] [api/quote] Fetching quote for AAPL
+[2026-07-04T12:43:38.514Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"AAPL"}
+[2026-07-04T12:43:38.519Z] [INFO] [api/quote] Fetching quote for SPY
+[2026-07-04T12:43:38.519Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"SPY"}
+[2026-07-04T12:43:38.528Z] [INFO] [api/quote] Fetching quote for IWM
+[2026-07-04T12:43:38.528Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"IWM"}
+[2026-07-04T12:43:38.570Z] [INFO] [api/quote] Fetching quote for DIA
+[2026-07-04T12:43:38.571Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"DIA"}
+[2026-07-04T12:43:39.040Z] [ERROR] [finnhub] GET quote — failed {"durationMs":545,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:39.040Z] [ERROR] [api/quote] Failed to fetch quote for QQQ {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=QQQ 200 in 555ms (compile: 4ms, render: 551ms)
+[2026-07-04T12:43:39.048Z] [ERROR] [finnhub] GET quote — failed {"durationMs":533,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:39.048Z] [ERROR] [api/quote] Failed to fetch quote for AAPL {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=AAPL 200 in 539ms (compile: 2ms, render: 537ms)
+[2026-07-04T12:43:39.057Z] [ERROR] [finnhub] GET quote — failed {"durationMs":528,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:39.057Z] [ERROR] [api/quote] Failed to fetch quote for IWM {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=IWM 200 in 535ms (compile: 3ms, render: 533ms)
+[2026-07-04T12:43:39.065Z] [ERROR] [finnhub] GET quote — failed {"durationMs":546,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:39.066Z] [ERROR] [api/quote] Failed to fetch quote for SPY {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=SPY 200 in 556ms (compile: 7ms, render: 549ms)
+[2026-07-04T12:43:39.067Z] [ERROR] [finnhub] GET quote — failed {"durationMs":563,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:39.068Z] [ERROR] [api/quote] Failed to fetch quote for NVDA {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=NVDA 200 in 581ms (compile: 13ms, render: 568ms)
+[2026-07-04T12:43:39.085Z] [ERROR] [finnhub] GET quote — failed {"durationMs":515,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:39.086Z] [ERROR] [api/quote] Failed to fetch quote for DIA {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=DIA 200 in 522ms (compile: 2ms, render: 520ms)
+[2026-07-04T12:43:39.176Z] [INFO] [api/quote] Fetching quote for MSFT
+[2026-07-04T12:43:39.177Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"MSFT"}
+[2026-07-04T12:43:39.185Z] [INFO] [api/quote] Fetching quote for GOOGL
+[2026-07-04T12:43:39.185Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"GOOGL"}
+[2026-07-04T12:43:39.190Z] [INFO] [api/quote] Fetching quote for AMZN
+[2026-07-04T12:43:39.190Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"AMZN"}
+[2026-07-04T12:43:39.198Z] [INFO] [api/quote] Fetching quote for XOM
+[2026-07-04T12:43:39.199Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"XOM"}
+[2026-07-04T12:43:39.227Z] [INFO] [api/quote] Fetching quote for TSLA
+[2026-07-04T12:43:39.227Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"TSLA"}
+[2026-07-04T12:43:39.387Z] [INFO] [api/quote] Fetching quote for JPM
+[2026-07-04T12:43:39.387Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"JPM"}
+[2026-07-04T12:43:39.684Z] [ERROR] [finnhub] GET quote — failed {"durationMs":507,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:39.685Z] [ERROR] [api/quote] Failed to fetch quote for MSFT {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=MSFT 200 in 514ms (compile: 2ms, render: 512ms)
+[2026-07-04T12:43:39.689Z] [ERROR] [finnhub] GET quote — failed {"durationMs":490,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:39.690Z] [ERROR] [api/quote] Failed to fetch quote for XOM {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=XOM 200 in 497ms (compile: 1300µs, render: 495ms)
+[2026-07-04T12:43:39.692Z] [ERROR] [finnhub] GET quote — failed {"durationMs":506,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:39.692Z] [ERROR] [api/quote] Failed to fetch quote for GOOGL {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=GOOGL 200 in 512ms (compile: 2ms, render: 510ms)
+[2026-07-04T12:43:39.696Z] [ERROR] [finnhub] GET quote — failed {"durationMs":505,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:39.696Z] [ERROR] [api/quote] Failed to fetch quote for AMZN {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=AMZN 200 in 510ms (compile: 1231µs, render: 509ms)
+[2026-07-04T12:43:39.732Z] [ERROR] [finnhub] GET quote — failed {"durationMs":504,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:39.732Z] [ERROR] [api/quote] Failed to fetch quote for TSLA {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=TSLA 200 in 514ms (compile: 3ms, render: 511ms)
+[2026-07-04T12:43:39.798Z] [INFO] [api/quote] Fetching quote for META
+[2026-07-04T12:43:39.799Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"META"}
+[2026-07-04T12:43:39.813Z] [INFO] [api/quote] Fetching quote for V
+[2026-07-04T12:43:39.813Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"V"}
+[2026-07-04T12:43:39.828Z] [INFO] [api/quote] Fetching quote for JNJ
+[2026-07-04T12:43:39.828Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"JNJ"}
+[2026-07-04T12:43:39.840Z] [INFO] [api/quote] Fetching quote for WMT
+[2026-07-04T12:43:39.841Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"WMT"}
+[2026-07-04T12:43:39.902Z] [INFO] [api/quote] Fetching quote for PG
+[2026-07-04T12:43:39.902Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"PG"}
+[2026-07-04T12:43:39.904Z] [ERROR] [finnhub] GET quote — failed {"durationMs":516,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:39.904Z] [ERROR] [api/quote] Failed to fetch quote for JPM {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=JPM 200 in 524ms (compile: 2ms, render: 521ms)
+[2026-07-04T12:43:40.024Z] [INFO] [api/quote] Fetching quote for UNH
+[2026-07-04T12:43:40.024Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"UNH"}
+[2026-07-04T12:43:40.303Z] [ERROR] [finnhub] GET quote — failed {"durationMs":504,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:40.303Z] [ERROR] [api/quote] Failed to fetch quote for META {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=META 200 in 512ms (compile: 3ms, render: 509ms)
+[2026-07-04T12:43:40.316Z] [ERROR] [finnhub] GET quote — failed {"durationMs":502,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:40.316Z] [ERROR] [api/quote] Failed to fetch quote for V {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=V 200 in 509ms (compile: 2ms, render: 507ms)
+[2026-07-04T12:43:40.323Z] [ERROR] [finnhub] GET quote — failed {"durationMs":495,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:40.324Z] [ERROR] [api/quote] Failed to fetch quote for JNJ {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=JNJ 200 in 501ms (compile: 2ms, render: 499ms)
+[2026-07-04T12:43:40.350Z] [ERROR] [finnhub] GET quote — failed {"durationMs":510,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:40.351Z] [ERROR] [api/quote] Failed to fetch quote for WMT {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=WMT 200 in 522ms (compile: 9ms, render: 513ms)
+[2026-07-04T12:43:40.410Z] [ERROR] [finnhub] GET quote — failed {"durationMs":507,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:40.410Z] [ERROR] [api/quote] Failed to fetch quote for PG {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=PG 200 in 514ms (compile: 1924µs, render: 512ms)
+[2026-07-04T12:43:40.421Z] [INFO] [api/quote] Fetching quote for HD
+[2026-07-04T12:43:40.421Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"HD"}
+[2026-07-04T12:43:40.433Z] [INFO] [api/news] Fetching market news for category: general
+[2026-07-04T12:43:40.433Z] [DEBUG] [cache] MISS finnhub:news:{"category":"general"}
+[2026-07-04T12:43:40.524Z] [ERROR] [finnhub] GET quote — failed {"durationMs":500,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:40.525Z] [ERROR] [api/quote] Failed to fetch quote for UNH {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=UNH 200 in 506ms (compile: 1847µs, render: 504ms)
+[2026-07-04T12:43:40.917Z] [ERROR] [finnhub] GET news — failed {"durationMs":483,"error":"FinnhubError: Finnhub news [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:40.917Z] [ERROR] [api/news] Failed to fetch market news {"error":"Finnhub news [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/news?category=general 200 in 490ms (compile: 1617µs, render: 488ms)
+[2026-07-04T12:43:40.924Z] [ERROR] [finnhub] GET quote — failed {"durationMs":502,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:40.924Z] [ERROR] [api/quote] Failed to fetch quote for HD {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=HD 200 in 508ms (compile: 1798µs, render: 506ms)
+[2026-07-04T12:43:41.042Z] [INFO] [api/quote] Fetching quote for NVDA
+[2026-07-04T12:43:41.042Z] [DEBUG] [cache] MISS finnhub:quote:{"symbol":"NVDA"}
+[2026-07-04T12:43:41.525Z] [ERROR] [finnhub] GET quote — failed {"durationMs":483,"error":"FinnhubError: Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:41.526Z] [ERROR] [api/quote] Failed to fetch quote for NVDA {"error":"Finnhub quote [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/quote?symbol=NVDA 200 in 492ms (compile: 2ms, render: 489ms)
+[2026-07-04T12:43:41.650Z] [INFO] [api/recommendation] Fetching recommendations for NVDA
+[2026-07-04T12:43:41.650Z] [DEBUG] [cache] MISS finnhub:stock/recommendation:{"symbol":"NVDA"}
+[2026-07-04T12:43:42.139Z] [ERROR] [finnhub] GET stock/recommendation — failed {"durationMs":488,"error":"FinnhubError: Finnhub stock/recommendation [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:42.140Z] [ERROR] [api/recommendation] Failed to fetch recommendations for NVDA {"error":"Finnhub stock/recommendation [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/recommendation?symbol=NVDA 200 in 499ms (compile: 3ms, render: 497ms)
+[2026-07-04T12:43:42.264Z] [INFO] [api/insider-sentiment] Fetching insider sentiment for NVDA
+[2026-07-04T12:43:42.265Z] [DEBUG] [cache] MISS finnhub:stock/insider-sentiment:{"symbol":"NVDA","from":"2026-01-04","to":"2026-07-04"}
+[2026-07-04T12:43:42.765Z] [ERROR] [finnhub] GET stock/insider-sentiment — failed {"durationMs":499,"error":"FinnhubError: Finnhub stock/insider-sentiment [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+[2026-07-04T12:43:42.765Z] [ERROR] [api/insider-sentiment] Failed to fetch insider sentiment for NVDA {"error":"Finnhub stock/insider-sentiment [200]: Non-JSON response: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n    <meta name=\"author\" content=\"Finnhub.io\"/>\n\n    <meta name=\"viewport\" content=\"widt"}
+ GET /api/insider-sentiment?symbol=NVDA 200 in 510ms (compile: 3ms, render: 507ms)
+ GET / 200 in 46ms (compile: 3ms, render: 43ms)
+200
+---LOGS---
+▲ Next.js 16.1.3 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://21.0.6.41:3000
+- Environments: .env
+
+✓ Starting...
+✓ Ready in 859ms
+○ Compiling / ...
