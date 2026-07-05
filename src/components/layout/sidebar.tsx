@@ -11,6 +11,8 @@ import {
   Sparkles,
   ChevronLeft,
   ChevronRight,
+  LogOut,
+  User,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
@@ -25,7 +27,7 @@ const navItems: { id: ScreenId; label: string; icon: React.ComponentType<{ class
 ]
 
 export function Sidebar() {
-  const { activeScreen, setActiveScreen } = useAppStore()
+  const { activeScreen, setActiveScreen, user, logout } = useAppStore()
   const [collapsed, setCollapsed] = useState(false)
 
   return (
@@ -80,6 +82,51 @@ export function Sidebar() {
       </nav>
 
       <Separator className="bg-sidebar-border" />
+
+      {/* User profile section */}
+      {user && (
+        <div className="p-3 shrink-0 flex flex-col gap-2 overflow-hidden items-center border-b border-sidebar-border/30">
+          <div className="flex items-center justify-between w-full gap-2 min-w-0">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
+                <User className="w-4 h-4 text-primary" />
+              </div>
+              {!collapsed && (
+                <div className="flex flex-col min-w-0">
+                  <span className="text-xs font-semibold text-sidebar-foreground truncate">
+                    {user.name || user.email.split('@')[0]}
+                  </span>
+                  <span className="text-[10px] text-muted-foreground truncate text-left">
+                    {user.email}
+                  </span>
+                </div>
+              )}
+            </div>
+            {!collapsed && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="w-8 h-8 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0"
+                onClick={logout}
+                title="Log Out"
+              >
+                <LogOut className="w-4 h-4" />
+              </Button>
+            )}
+          </div>
+          {collapsed && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="w-8 h-8 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+              onClick={logout}
+              title="Log Out"
+            >
+              <LogOut className="w-4 h-4" />
+            </Button>
+          )}
+        </div>
+      )}
 
       {/* Collapse toggle */}
       <div className="p-2 shrink-0">
