@@ -247,7 +247,7 @@ export function TrendAnalysisScreen() {
                         </div>
                         <div className="text-right text-xs">
                           <div className="text-muted-foreground">{e.date}</div>
-                          <div>Est: ${e.estimate.toFixed(2)} {e.actual !== null && <span className={e.actual >= e.estimate ? 'text-gain' : 'text-loss'}> Actual: ${e.actual.toFixed(2)}</span>}</div>
+                          <div>Est: {typeof e.estimate === 'number' ? `$${e.estimate.toFixed(2)}` : 'N/A'} {typeof e.actual === 'number' && <span className={e.actual >= (e.estimate ?? 0) ? 'text-gain' : 'text-loss'}> Actual: ${e.actual.toFixed(2)}</span>}</div>
                         </div>
                       </div>
                     ))}

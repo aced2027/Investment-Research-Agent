@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { FinnhubError } from '@/lib/finnhub-types'
-import { finnFetch } from '@/lib/api-helper'
+import { marketauxFetch, MarketauxError } from '@/lib/marketaux-helper'
 import { logger } from '@/lib/logger'
 import { apiCache, CACHE_TTL } from '@/lib/cache'
 
@@ -10,15 +9,17 @@ export async function GET(request: NextRequest) {
   const refresh = searchParams.get('refresh') === 'true'
 
   if (refresh) {
-    apiCache.invalidate('finnhub:news:')
+    apiCache.invalidate('marketaux:news/all:')
   }
 
   try {
-    logger.info('api/news', `Fetching market news for category: ${category}`)
-    const news = await finnFetch<unknown[]>('news', { category }, CACHE_TTL.MARKET_NEWS)
+    logger.info('api/news', `Fetching market news using Marketaux`)
+    // Fetch all English news
+    const response = await marketauxFetch<{ data: unknown[] }>('news/all', { language: 'en' }, CACHE_TTL.MARKET_NEWS)
+    const news = response.data || []
     return NextResponse.json({ news })
   } catch (err) {
-    const status = err instanceof FinnhubError ? err.status : 500
+    const status = err instanceof MarketauxError ? err.status : 500
     const message = err instanceof Error ? err.message : 'An unexpected error occurred'
     logger.error('api/news', `Failed to fetch market news`, { error: message })
     return NextResponse.json({ error: message, status }, { status })

@@ -7,7 +7,6 @@ import {
   Newspaper,
   Search,
   TrendingUp,
-  Palette,
   Bot,
   Sparkles,
   ChevronLeft,
@@ -22,7 +21,7 @@ const navItems: { id: ScreenId; label: string; icon: React.ComponentType<{ class
   { id: 'news', label: 'News & Summarizer', icon: Newspaper },
   { id: 'ticker', label: 'Ticker Research', icon: Search },
   { id: 'trends', label: 'Trend Analysis', icon: TrendingUp },
-  { id: 'design-system', label: 'Design System', icon: Palette },
+  { id: 'ai-agent', label: 'AI Research Agent', icon: Bot },
 ]
 
 export function Sidebar() {

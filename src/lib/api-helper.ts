@@ -8,7 +8,7 @@ import { FinnhubError } from './finnhub-types'
 import { logger } from './logger'
 import { apiCache, CACHE_TTL } from './cache'
 
-const BASE_URL = 'https://finnhub.io/api/v1'
+const BASE_URL = 'https://finnhub.io/api/v1/'
 
 export async function finnFetch<T>(
   endpoint: string,
@@ -24,8 +24,11 @@ export async function finnFetch<T>(
 
   logger.debug('cache', `MISS ${cacheKey}`)
 
-  const url = new URL(`${BASE_URL}${endpoint}`)
-  url.searchParams.set('token', process.env.FINNHUB_API_KEY || '')
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint
+  const url = new URL(`${BASE_URL}${cleanEndpoint}`)
+  const key = (process.env.FINNHUB_API_KEY || '').trim();
+  logger.info('finnhub', `Requesting ${endpoint} with token: ${key ? key.slice(0, 5) + '...' + key.slice(-5) : 'undefined'} (len: ${key.length})`);
+  url.searchParams.set('token', key)
   for (const [k, v] of Object.entries(params)) {
     url.searchParams.set(k, v)
   }
@@ -45,6 +48,7 @@ export async function finnFetch<T>(
     const contentType = res.headers.get('content-type') || ''
     if (!contentType.includes('application/json')) {
       const body = await res.text().catch(() => '')
+      logger.error('finnhub', `Non-JSON body from ${endpoint} (status ${res.status}): ${body.slice(0, 1000)}`)
       throw new FinnhubError(res.status, `Non-JSON response: ${body.slice(0, 200)}`, endpoint)
     }
 

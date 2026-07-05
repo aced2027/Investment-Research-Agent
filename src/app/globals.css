@@ -175,3 +175,8 @@
 .ticker-tape {
   animation: ticker-scroll 30s linear infinite;
 }
+
+/* Fix Radix ScrollArea viewport child expansion bug */
+[data-slot="scroll-area-viewport"] > div {
+  display: block !important;
+}

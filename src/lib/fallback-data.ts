@@ -119,18 +119,32 @@ export function getFallbackInsiderSentiment(symbol: string): InsiderSentimentIte
 // --- News Service Fallbacks ---
 
 export function getFallbackNews(): NewsItem[] {
-  return newsItems.map((n) => ({
-    id: n.id,
-    title: n.title,
-    source: n.source,
-    time: n.time,
-    summary: n.summary,
-    sentiment: n.sentiment,
-    tickers: n.tickers,
-    category: n.category,
-    image: '',
-    url: '#',
-  }))
+  return newsItems.map((n, index) => {
+    let ageMs = 0
+    if (n.time.includes('hour')) {
+      const hours = parseInt(n.time) || 1
+      ageMs = hours * 60 * 60 * 1000
+    } else if (n.time.includes('min')) {
+      const mins = parseInt(n.time) || 5
+      ageMs = mins * 60 * 1000
+    } else if (n.time.includes('day')) {
+      const days = parseInt(n.time) || 1
+      ageMs = days * 24 * 60 * 60 * 1000
+    }
+    return {
+      id: n.id,
+      title: n.title,
+      source: n.source,
+      time: n.time,
+      summary: n.summary,
+      sentiment: n.sentiment,
+      tickers: n.tickers,
+      category: n.category,
+      image: '',
+      url: '#',
+      timestamp: Date.now() - ageMs - index * 1000,
+    }
+  })
 }
 
 // --- Analysis Service Fallbacks ---

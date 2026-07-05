@@ -228,7 +228,7 @@ export function NewsFeedScreen() {
   const [dataSource, setDataSource] = useState<'live' | 'fallback'>('live')
   const prevCountRef = useRef(0)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  const loadNewsRef = useRef<() => Promise<void>>()
+  const loadNewsRef = useRef<(showRefresh?: boolean) => Promise<void>>(undefined)
 
   const loadNews = useCallback(async (showRefresh = false) => {
     try {
@@ -252,12 +252,11 @@ export function NewsFeedScreen() {
         return true
       })
 
-      // Sort by datetime (newest first) — use the id as a proxy for recency
+      // Sort by datetime (newest first) using resolved timestamp
       unique.sort((a, b) => {
-        // Finnhub IDs are incrementing integers, higher = newer
-        const idA = parseInt(a.id, 10) || 0
-        const idB = parseInt(b.id, 10) || 0
-        return idB - idA
+        const timeA = a.timestamp || 0
+        const timeB = b.timestamp || 0
+        return timeB - timeA
       })
 
       // Detect new articles
@@ -543,7 +542,7 @@ export function NewsFeedScreen() {
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gain opacity-75" />
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-gain" />
                   </span>
-                  <span className="text-gain">Live via Finnhub API</span>
+                  <span className="text-gain">Live via Marketaux API</span>
                 </>
               ) : (
                 <>

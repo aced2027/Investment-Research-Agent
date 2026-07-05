@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-export type ScreenId = 'dashboard' | 'news' | 'ticker' | 'trends' | 'design-system'
+export type ScreenId = 'dashboard' | 'news' | 'ticker' | 'trends' | 'ai-agent'
 
 interface AppState {
   activeScreen: ScreenId

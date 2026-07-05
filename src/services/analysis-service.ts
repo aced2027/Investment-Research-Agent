@@ -55,7 +55,7 @@ export async function getMarketIndices(): Promise<MarketIndex[]> {
       })
     )
     const valid = results
-      .filter((r): r is PromiseFulfilledResult<MarketIndex> => r.status === 'fulfilled' && r.value.price > 0)
+      .filter((r): r is PromiseFulfilledResult<MarketIndex> => r.status === 'fulfilled' && r.value.value > 0)
       .map((r) => r.value)
     if (valid.length === 0) throw new Error('No valid index quotes')
     return valid

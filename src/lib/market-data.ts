@@ -139,7 +139,7 @@ export const newsItems: NewsItem[] = [
 ]
 
 function generatePriceHistory(basePrice: number, days: number, volatility: number) {
-  const history = []
+  const history: any[] = []
   let price = basePrice * (1 - volatility * days * 0.001)
   for (let i = 0; i < days; i++) {
     const date = new Date()

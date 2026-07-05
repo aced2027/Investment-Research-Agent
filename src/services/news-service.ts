@@ -17,6 +17,7 @@ export interface NewsItem {
   category: string
   image: string
   url: string
+  timestamp?: number
 }
 
 /** Simple keyword-based sentiment heuristic */
@@ -35,9 +36,15 @@ function classifySentiment(text: string): 'bullish' | 'bearish' | 'neutral' {
   return 'neutral'
 }
 
-function extractTickers(related: string): string[] {
-  if (!related) return []
-  return related.split(',').map((s) => s.trim()).filter(Boolean).slice(0, 5)
+function mapIndustryToCategory(industry?: string): string {
+  if (!industry) return 'General'
+  const ind = industry.toLowerCase()
+  if (ind.includes('technology') || ind.includes('software') || ind.includes('semiconductor')) return 'Technology'
+  if (ind.includes('financial') || ind.includes('bank') || ind.includes('insurance') || ind.includes('credit')) return 'Finance'
+  if (ind.includes('healthcare') || ind.includes('pharmaceutical') || ind.includes('biotech')) return 'Healthcare'
+  if (ind.includes('consumer') || ind.includes('retail') || ind.includes('apparel') || ind.includes('food')) return 'Consumer'
+  if (ind.includes('energy') || ind.includes('oil') || ind.includes('gas') || ind.includes('utility') || ind.includes('utilities')) return 'Energy'
+  return 'General'
 }
 
 function formatRelativeTime(datetime: number): string {
@@ -51,19 +58,47 @@ function formatRelativeTime(datetime: number): string {
   return `${days} day${days > 1 ? 's' : ''} ago`
 }
 
-function transformArticle(article: { headline: string; summary: string; source: string; category: string; datetime: number; id: number; image: string; url: string; related: string }): NewsItem {
-  const text = `${article.headline} ${article.summary}`
+function transformArticle(article: any): NewsItem {
+  const entities = Array.isArray(article.entities) ? article.entities : []
+  const tickers = Array.from(new Set(entities.map((e: any) => e.symbol).filter(Boolean) as string[]))
+
+  let sentiment: 'bullish' | 'bearish' | 'neutral' = 'neutral'
+  const sentimentScores = entities.map((e: any) => e.sentiment_score).filter((s: any) => typeof s === 'number')
+  if (sentimentScores.length > 0) {
+    const avgSentiment = sentimentScores.reduce((a: number, b: number) => a + b, 0) / sentimentScores.length
+    if (avgSentiment > 0.1) sentiment = 'bullish'
+    else if (avgSentiment < -0.1) sentiment = 'bearish'
+  } else {
+    const text = `${article.title || ''} ${article.description || ''} ${article.snippet || ''}`
+    sentiment = classifySentiment(text)
+  }
+
+  let category = 'General'
+  const firstIndustry = entities.find((e: any) => e.industry)?.industry
+  if (firstIndustry) {
+    category = mapIndustryToCategory(firstIndustry)
+  }
+
+  let relativeTime = 'Just now'
+  let timestamp = Date.now()
+  if (article.published_at) {
+    const parsedDate = new Date(article.published_at)
+    timestamp = parsedDate.getTime()
+    relativeTime = formatRelativeTime(Math.floor(timestamp / 1000))
+  }
+
   return {
-    id: String(article.id),
-    title: article.headline,
-    source: article.source,
-    time: formatRelativeTime(article.datetime),
-    summary: article.summary,
-    sentiment: classifySentiment(text),
-    tickers: extractTickers(article.related),
-    category: article.category || 'General',
-    image: article.image || '',
-    url: article.url,
+    id: article.uuid || String(Math.random()),
+    title: article.title || 'No Title',
+    source: article.source || 'Unknown',
+    time: relativeTime,
+    summary: article.description || article.snippet || 'No summary available.',
+    sentiment,
+    tickers,
+    category,
+    image: article.image_url || '',
+    url: article.url || '#',
+    timestamp,
   }
 }
 
