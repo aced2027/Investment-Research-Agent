@@ -283,13 +283,17 @@ export function NewsFeedScreen() {
   }, [])
 
   // Keep ref in sync so interval always calls latest version
-  loadNewsRef.current = loadNews
+  useEffect(() => {
+    loadNewsRef.current = loadNews
+  }, [loadNews])
 
   // Initial load
   useEffect(() => {
-    loadNews()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    const timer = setTimeout(() => {
+      loadNews()
+    }, 0)
+    return () => clearTimeout(timer)
+  }, [loadNews])
 
   // Auto-refresh every 60 seconds
   useEffect(() => {
